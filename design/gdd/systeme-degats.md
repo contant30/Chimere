@@ -1,8 +1,8 @@
 # Système de dégâts
 
-> **Statut** : Complet
+> **Statut** : Révisé — en attente de re-review
 > **Auteur** : Game Designer + Systems Designer
-> **Dernière mise à jour** : 2026-04-07
+> **Dernière mise à jour** : 2026-04-07 (révision post-review)
 > **Implémente le pilier** : Pilier 1 — Tout est une arme · Pilier 2 — Le flow avant le challenge
 
 ## Overview
@@ -56,6 +56,9 @@ S06 retourne un `int` unique : les points de dégâts à soustraire à la cible.
 
 **Règle 6 — Un appel par contact résolu**
 S06 est appelé exactement une fois par contact physique résolu. Si un objet lancé touche plusieurs ennemis, S02 appelle S06 une fois par ennemi touché. S06 ignore le contexte multi-cible.
+
+**Règle 7 — Autorité de multiplication**
+S02 transmet `damage_base` et `stage_mult` comme valeurs **brutes**, exactement telles qu'elles sont lues dans le catalogue (S05) ou les données de stade. S02 n'applique aucune pré-multiplication avant l'appel. S06 est le seul système qui exécute `damage_base × stage_mult`. Tout autre appelant (S09) respecte la même règle : pas de pré-multiplication côté appelant. Toute valeur d'entrée déjà multipliée produirait un résultat erroné par double-application.
 
 ### States and Transitions
 
@@ -192,8 +195,9 @@ S06 expose une seule fonction avec une signature stable : `calculate(damage_base
 | `damage_base` (par objet) | 3 – 15 selon l'objet | Calibré via S05 | Rythme de kill : trop bas = frustrant, trop haut = trivial. Baseline : ennemi ~12 HP, objet moyen = 7. |
 | `melee_dmg_mult` (par stade) | 0.5 – 2.0 | 0.25 – 3.0 | Montée en puissance en cours de vague. Dépasser 2.0 risque de rendre les fins de vague triviales. |
 | `throw_dmg_mult` (par stade) | 0.75 – 2.0 | 0.25 – 3.0 | Identique à mêlée mais pour les lancers. Peut diverger de `melee_dmg_mult` pour renforcer l'intérêt stratégique des lancers. |
+| `KILL_FEEL_MAX` | `5` | 3 – 7 | Contrainte de calibration : tout objet doit tuer un ennemi standard en ≤ 5 frappes à `stage_mult = 1.0`. Implique `HP_ennemi ≤ KILL_FEEL_MAX × damage_base_min`. Si cette contrainte est violée lors du calibrage S05, ajuster `damage_base` des objets légers ou le `HP_ennemi` de base. Violation = Pilier 2 brisé. |
 
-> Les valeurs de `damage_base` et `stage_mult` sont définies et modifiables dans S05 (catalogue d'objets). `DAMAGE_MIN` est la seule constante appartenant en propre à S06.
+> Les valeurs de `damage_base` et `stage_mult` sont définies et modifiables dans S05 (catalogue d'objets). `DAMAGE_MIN` et `KILL_FEEL_MAX` sont les constantes de calibration appartenant en propre à S06.
 
 ## Visual/Audio Requirements
 
@@ -233,11 +237,11 @@ Si des chiffres de dégâts flottants sont ajoutés en V1.0 ou polish, c'est S15
 **AC-S06-06 — Stateless**
 Appeler la fonction 1000 fois avec les mêmes paramètres produit toujours le même résultat. *(test unitaire, loop)*
 
-**AC-S06-07 — Calibration de base**
-En playtest avec les valeurs S05 par défaut : un ennemi standard (~12 HP) est tué en 2–3 frappes mêlée avec un objet de poids moyen (`damage_base ≈ 7`). *(test de playtest)*
+**AC-S06-07 — Calibration arithmétique**
+Étant donné `damage_base = 7`, `stage_mult = 1.0`, la formule retourne exactement `7`. Par arithmétique pure : 12 HP / 7 → 2 frappes (7+7 = 14 ≥ 12). La cible 2–3 frappes est validée par le calcul, indépendamment de S05/S08. *(test unitaire — vérification arithmétique)*
 
-**AC-S06-08 — DamageType transmis**
-Après un appel `THROW`, le récepteur (S08 ou S07) reçoit `damage_type = THROW` — pas `MELEE`, pas `ENEMY_MELEE`. *(test d'intégration S02 → S06 → S08)*
+**AC-S06-08 — DamageType accepté par la signature**
+Étant donné `damage_base = 5`, `stage_mult = 1.0`, `damage_type = THROW`, la fonction retourne `5` sans erreur — `DamageType` n'affecte pas le calcul. La propagation de `damage_type` aux récepteurs (S08, S07) est testée dans les ACs de S02. *(test unitaire)*
 
 ## Open Questions
 

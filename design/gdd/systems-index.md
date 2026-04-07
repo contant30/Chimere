@@ -28,7 +28,7 @@ intrinsèquement satisfaisante").
 | S03 | Vagues d'ennemis | Ennemi | MVP | Non commencé | — | S08, S09, S11* |
 | S04 | Dégradation d'environnement | Monde | MVP | Non commencé | — | S02, S05 |
 | S05 | Catalogue d'objets (inféré) | Données | MVP | Complet | `design/gdd/catalogue-objets.md` | — |
-| S06 | Système de dégâts (inféré) | Mécanique cœur | MVP | Complet | `design/gdd/systeme-degats.md` | — |
+| S06 | Système de dégâts (inféré) | Mécanique cœur | MVP | In Review | `design/gdd/systeme-degats.md` | — |
 | S07 | Santé joueur + game-over (inféré) | Joueur | MVP | Non commencé | — | S06 |
 | S08 | Santé ennemie + mort ennemi (inféré) | Ennemi | MVP | Non commencé | — | S06 |
 | S09 | IA ennemie (inféré) | Ennemi | MVP | Non commencé | — | S01 |
