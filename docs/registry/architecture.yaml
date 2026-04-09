@@ -30,7 +30,7 @@
 #   Superseded entries:     Grep pattern="status: superseded"
 
 version: 1
-last_updated: ""
+last_updated: "2026-04-09"  # ADR-0002 added: player_body_impulse_coupling
 
 # ─── STATE OWNERSHIP ─────────────────────────────────────────────────────────
 # Who is the authoritative owner of each piece of shared game state.
@@ -71,7 +71,25 @@ state_ownership: []
 #
 # pattern options: signal | direct_call | event_bus | shared_resource | rpc | none
 
-interfaces: []
+interfaces:
+  - contract: grab_system_signals
+    status: active
+    pattern: signal
+    producer: grab-system
+    consumers:
+      - enemy-health-system   # reçoit melee_performed / throw_performed → applique dégâts
+      - degradation-system    # reçoit melee_performed / throw_performed → évalue destruction
+      - score-system          # reçoit grab_performed / throw_performed / melee_performed → score
+    adr: docs/architecture/adr-0001-grab-system.md
+    signal_signature: |
+      grab_performed(object: RigidBody3D)
+      throw_performed(object: RigidBody3D, impulse: Vector3)
+      melee_performed(object: RigidBody3D)
+      object_dropped(object: RigidBody3D)
+    referenced_by:
+      - docs/architecture/adr-0001-grab-system.md
+    added: 2026-04-09
+    revised: ""
 
 # Example:
 #
@@ -157,7 +175,37 @@ api_decisions: []
 # Register a pattern when an ADR explicitly bans it AND other ADRs might
 # unknowingly use it (i.e., it's a tempting but wrong approach for this project).
 
-forbidden_patterns: []
+forbidden_patterns:
+  - pattern: autoload_for_player_systems
+    status: active
+    description: "Les systèmes spécifiques au joueur (GrabSystem, etc.) ne doivent pas
+      être enregistrés comme Autoloads. Utiliser des nœuds enfants avec injection @export."
+    why: "Un Autoload pour un système player-specific crée un couplage global implicite,
+      rend les tests unitaires impossibles (impossible de mocker), et est sémantiquement
+      incorrect — ce n'est pas un service global."
+    adr: docs/architecture/adr-0001-grab-system.md
+    added: 2026-04-09
+
+  - pattern: node_path_coupling
+    status: active
+    description: "Interdit d'accéder aux dépendances d'un nœud via chemin absolu
+      (get_node('../Camera'), get_tree().get_first_node_in_group(...)). Utiliser
+      @export injection à la place."
+    why: "Le couplage aux chemins de nœuds est cassant dès que la structure de scène
+      change, et empêche les tests unitaires hors scène complète."
+    adr: docs/architecture/adr-0001-grab-system.md
+    added: 2026-04-09
+
+  - pattern: player_body_impulse_coupling
+    status: active
+    description: "Interdit d'ajouter du code d'impulse RigidBody3D dans le script de
+      mouvement du joueur (Player.gd ou équivalent). move_and_slide() ne pousse pas
+      les RigidBody3D — c'est le comportement voulu, pas un bug à corriger."
+    why: "Core Rule 7 de S01 : le joueur ne doit pas pousser les objets en marchant.
+      Ajouter un impulse manuellement contredit cette règle et perturbe le système
+      de saisie S02 (le joueur pourrait déplacer un objet qu'il tente de saisir)."
+    adr: docs/architecture/adr-0002-player-body-type.md
+    added: 2026-04-09
 
 # Example:
 #

@@ -60,11 +60,11 @@ Le travail actuel est surtout **design et documentation** : concept, art bible, 
 
 ## 📊 Dashboard Projet
 
-Les blocs entre `<!-- START_SECTION:... -->` et `<!-- END_SECTION:... -->` ci‑dessous sont **mis à jour automatiquement** par le workflow GitHub Actions [README Dashboard](.github/workflows/update-readme.yml) (push + toutes les 6 h). Ne pas les modifier à la main.
+Les blocs entre `<!-- START_SECTION:... -->` et `<!-- END_SECTION:... -->` ci‑dessous sont **mis à jour automatiquement** par le workflow GitHub Actions [README Dashboard](.github/workflows/update-readme.yml) (push + toutes les 6 h). Ne pas les modifier à la main. Sous **Issues ouvertes**, les mini-barres reflètent les **cases cochées** dans la description de chaque issue (syntaxe Markdown des tâches GitHub).
 
 ### 📈 Progression globale (Issues)
 <!-- START_SECTION:progress -->
-✅✅✅✅✅✅🕒🕒🕒🕒🕒🕒🕒🕒🕒🕒🕒🕒🕒🕒🕒🕒🕒🕒🕒🕒🕒🕒🕒🕒 20%
+✅✅✅✅🕒🕒🕒🕒🕒🕒🕒🕒🕒🕒🕒🕒🕒🕒🕒🕒🕒🕒🕒🕒🕒🕒🕒🕒🕒🕒 15%
 <!-- END_SECTION:progress -->
 
 ### 📊 Statistiques
@@ -72,7 +72,7 @@ Les blocs entre `<!-- START_SECTION:... -->` et `<!-- END_SECTION:... -->` ci‑
 
 | ✅ Fermées | 🕒 Ouvertes | 📊 Total |
 |-----------|------------|----------|
-| 2 | 8 | 10 |
+| 2 | 11 | 13 |
 
 <!-- END_SECTION:stats -->
 
@@ -82,11 +82,13 @@ Les blocs entre `<!-- START_SECTION:... -->` et `<!-- END_SECTION:... -->` ci‑
 <!-- START_SECTION:issues -->
 **🕒 Issues ouvertes**
 
-🟩🟩⬜⬜⬜⬜⬜⬜⬜⬜ #10 S10 Caméra TPS
-🟩🟩🟩🟩⬜⬜⬜⬜⬜⬜ #9 S09 IA ennemie
-🟩🟩🟩🟩🟩🟩⬜⬜⬜⬜ #8 S08 Santé ennemie
-🟩🟩🟩🟩🟩🟩🟩🟩⬜⬜ #7 S07 Santé joueur
-🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩 #4 S04 Dégradation environnement
+_Barres : part des sous-tâches cochées dans le corps de l’issue (`- [ ]` / `- [x]`). Sans checklist → 0 %._
+
+- ⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜ #13 S13 HUD
+- ⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜ #12 S12 Retry
+- ⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜ #11 S11 Game state
+- ⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜ #10 S10 Caméra TPS
+- ⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜ #9 S09 IA ennemie
 
 <!-- END_SECTION:issues -->
 
@@ -96,8 +98,8 @@ Les blocs entre `<!-- START_SECTION:... -->` et `<!-- END_SECTION:... -->` ci‑
 <!-- START_SECTION:closed_issues -->
 **✅ Issues fermées**
 
-🟩🟩🟩🟩🟩⬜⬜⬜⬜⬜ #6 S06 Dégâts
-🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩 #5 S05 Catalogue objets
+- 🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩 #6 S06 Dégâts
+- 🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩 #5 S05 Catalogue objets
 
 <!-- END_SECTION:closed_issues -->
 
@@ -105,10 +107,10 @@ Les blocs entre `<!-- START_SECTION:... -->` et `<!-- END_SECTION:... -->` ci‑
 
 ### ⚡ Activité récente
 <!-- START_SECTION:activity -->
-⚡ Update update-readme.yml
-⚡ Update update-readme.yml
 ⚡ 📊 auto update dashboard
-⚡ Update create_mvp_issues.py
+⚡ 📊 auto update dashboard
+⚡ 📊 auto update dashboard
+⚡ mise a jours readme
 ⚡ 📊 auto update dashboard
 <!-- END_SECTION:activity -->
 

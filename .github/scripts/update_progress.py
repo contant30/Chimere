@@ -18,7 +18,12 @@ def get_issues():
     for i in data:
         if "pull_request" in i:
             continue
-        entry = {"num": i['number'], "title": i['title']}
+        entry = {
+            "num": i["number"],
+            "title": i["title"],
+            "body": (i.get("body") or ""),
+            "state": i["state"],
+        }
         if i["state"] == "open":
             open_issues.append(entry)
         else:
@@ -46,10 +51,40 @@ def cumulative_bar(closed, open_, length=30):
     percent = int((closed / total) * 100)
     return "✅" * closed_blocks + "🕒" * open_blocks + f" {percent}%"
 
-def issue_bar(index, total, length=10):
-    filled = int(((index+1)/total)*length)
-    empty = length - filled
-    return "🟩"*filled + "⬜"*empty
+
+def checklist_fraction(body: str):
+    """Part des cases cochées dans les listes de tâches GitHub (- [ ] / - [x], etc.)."""
+    if not body:
+        return None
+    # Lignes du type : - [ ]  * [x]  + [ ]  1. [x]
+    pat = re.compile(
+        r"^\s*(?:[-*+]|\d+\.)\s+\[([ xX])\]\s",
+        re.MULTILINE,
+    )
+    marks = pat.findall(body)
+    if not marks:
+        return None
+    done = sum(1 for m in marks if m.strip().lower() == "x")
+    return done / len(marks)
+
+
+def progress_bar(fraction: float, length: int = 10) -> str:
+    """Barre 🟩/⬜ pour une fraction dans [0, 1]."""
+    fraction = max(0.0, min(1.0, fraction))
+    filled = int(round(fraction * length))
+    if fraction >= 1.0:
+        filled = length
+    filled = max(0, min(length, filled))
+    return "🟩" * filled + "⬜" * (length - filled)
+
+
+def bar_for_issue(issue: dict, *, is_closed_row: bool) -> str:
+    if is_closed_row or issue.get("state") == "closed":
+        return progress_bar(1.0)
+    frac = checklist_fraction(issue.get("body") or "")
+    if frac is None:
+        return progress_bar(0.0)
+    return progress_bar(frac)
 
 # -------- UPDATE README --------
 def replace(content, start, end, new):
@@ -71,19 +106,26 @@ stats = f"""
 | {closed_count} | {open_count} | {total} |
 """
 
-# Fonction pour créer tableau d'issues avec mini-barres emojis
-def issues_table(title, issues_list):
+# Fonction pour créer tableau d'issues avec mini-barres (statut réel)
+def issues_table(title, issues_list, *, closed_section: bool):
     if not issues_list:
         return f"**{title}**\n- Aucune"
-    table = f"**{title}**\n\n"
-    total_issues = len(issues_list)
-    for idx, issue in enumerate(issues_list):
-        bar = issue_bar(idx, total_issues)
-        table += f"{bar} #{issue['num']} {issue['title']}\n"
+    legend = ""
+    if not closed_section:
+        legend = (
+            "_Barres : part des sous-tâches cochées dans le corps de l’issue "
+            "(`- [ ]` / `- [x]`). Sans checklist → 0 %._\n\n"
+        )
+    table = f"**{title}**\n\n{legend}"
+    for issue in issues_list:
+        bar = bar_for_issue(issue, is_closed_row=closed_section)
+        # Puce Markdown : un saut de ligne par issue au rendu GitHub (sinon le \n seul est absorbé).
+        table += f"- {bar} #{issue['num']} {issue['title']}\n"
     return table
 
-issues_open_table = issues_table("🕒 Issues ouvertes", open_issues)
-issues_closed_table = issues_table("✅ Issues fermées", closed_issues)
+
+issues_open_table = issues_table("🕒 Issues ouvertes", open_issues, closed_section=False)
+issues_closed_table = issues_table("✅ Issues fermées", closed_issues, closed_section=True)
 
 # Activité récente
 activity = "\n".join([f"⚡ {c}" for c in commits]) if commits else "⚡ Pas d'activité récente"

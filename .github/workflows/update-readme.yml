@@ -1,9 +1,7 @@
 name: 🚀 README Dashboard
 
 on:
-  push:
-  schedule:
-    - cron: "0 */6 * * *"
+  workflow_dispatch:
 
 permissions:
   contents: write
@@ -13,18 +11,25 @@ jobs:
   update:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v6
         with:
           fetch-depth: 20
 
       - name: Setup Python
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
 
       - name: Install deps
         run: pip install requests
 
       - name: Créer MVP issues si nécessaire
         run: python .github/scripts/create_mvp_issues.py
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Synchroniser les corps des issues MVP
+        run: python .github/scripts/sync_issue_bodies.py
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 

@@ -1,10 +1,10 @@
 # Session State — Saisir
 
-**Mis à jour :** 2026-04-08
+**Mis à jour :** 2026-04-09
 
 ## Tâche actuelle
 
-S02 — Saisie et lancer : conception en cours
+GDD S08 — Santé ennemie en cours.
 
 ## Progression
 
@@ -14,15 +14,16 @@ S02 — Saisie et lancer : conception en cours
 - [x] S06 — Système de dégâts (`design/gdd/systeme-degats.md`) — GDD approuvé, 9 ACs, Règle 8 (velocity), KILL_FEEL_MAX damage_base_min=3
 - [x] S01 — Déplacement joueur (`design/gdd/deplacement-joueur.md`) — GDD In Review, 11 ACs, CharacterBody3D+Jolt, coyote time, 9 tuning knobs
 - [x] Entity registry (`design/registry/entities.yaml`) — peuplé : 1 formule, 5 constantes
-- [ ] S02 — Saisie et lancer (`design/gdd/saisie-lancer.md`) — IN DESIGN (squelette créé)
+- [x] S02 — Saisie et lancer (`design/gdd/saisie-lancer.md`) — In Review, 11 ACs, 9 tuning knobs, OQ-05 ADR blocker
+- [x] S07 — Santé joueur (`design/gdd/sante-joueur.md`) — In Review, 9 ACs, HP_JOUEUR_MAX=20, I-frames=0.5s, 3 tuning knobs
 
 ## Section actuelle
 
-Overview (Section A)
+Overview (A) — en cours
 
 ## Fichiers en cours
 
-`design/gdd/saisie-lancer.md`
+design/gdd/sante-ennemie.md
 
 ## Décisions clés
 
