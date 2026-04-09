@@ -1,0 +1,40 @@
+name: Mise à jour avancement README
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "design/gdd/systems-index.md"
+      - "design/gdd/**.md"
+      - ".github/scripts/update_progress.py"
+
+permissions:
+  contents: write
+
+jobs:
+  update-readme:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Générer la section avancement
+        run: python .github/scripts/update_progress.py
+
+      - name: Commit si changement
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git diff --quiet README.md || (
+            git add README.md &&
+            git commit -m "docs: mise à jour automatique de l'avancement [skip ci]" &&
+            git push
+          )

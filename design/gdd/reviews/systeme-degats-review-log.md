@@ -2,6 +2,41 @@
 
 ---
 
+## Review — 2026-04-08 — Verdict: APPROVED
+
+Scope signal: M
+Specialists: Analyse lean (agents API indisponibles — mode dégradé)
+Blocking items: 5 résolus | Recommended: 7 (advisory)
+Prior verdict resolved: Oui — NEEDS REVISION du 2026-04-07
+
+### Bloquants résolus
+
+| # | Bloquant | Fix appliqué |
+|---|----------|-------------|
+| 1 | AC-S06-05 FAIL — THROW non couvert comme 3ème valeur d'enum | AC-S06-09 ajouté : `damage_base=6, stage_mult=1.2, THROW → 7` |
+| 2 | AC-S06-06 FAIL — boucle×1000 prouve déterminisme pas absence d'état | Réécrit : pattern `calculate(A)→calculate(B)→calculate(A)`, 3ème = 1er |
+| 3 | Velocity non documentée comme décision — contredisait player fantasy | Règle 8 ajoutée : velocity délibérément exclue, justification + note V1.0 |
+| 4 | KILL_FEEL_MAX / damage_base_min ambigu — incohérence mathématique latente | `damage_base_min = 3` défini explicitement dans Tuning Knobs |
+| 5 | float→int conversion non documentée — double floori silencieux | Contrat de type ajouté dans Règle 2 : S02 responsable du `floori()` |
+
+### Items advisory non traités (pour implémentation ou V1.0)
+
+6. AC-S06-01 WEAK — renforcer avec valeur qui distingue floori/roundi (non bloquant)
+7. AC-S06-02 WEAK — ajouter cas damage_base=0 (non bloquant)
+8. AC-S06-04 WEAK — remplacer par valeur avec décimale (non bloquant)
+9. GAP-01 — AC borne supérieure MVP (15, 2.0 → 30) manquant (non bloquant)
+10. GAP-02 — boundary stage_mult=0.5 non couvert (non bloquant)
+11. One-shot non documenté comme décision — stage_mult=1.5, damage_base=8 → 12
+12. stage_mult pendant le vol non couvert dans Edge Cases
+
+### Résumé
+
+L'architecture stateless est saine et les 4 bloquants de la première review avaient été correctement traités. Cette re-review a résolu 5 bloquants supplémentaires issus des findings tardifs (velocity decision, KILL_FEEL_MAX/damage_base_min, float→int, AC-06/AC-05). Le GDD est maintenant approuvable. Les items advisory restants sont des améliorations de couverture test — non bloquants pour l'implémentation.
+
+---
+
+---
+
 ## Review — 2026-04-07 — Verdict: NEEDS REVISION → Révisé (re-review requise)
 
 Scope signal: M

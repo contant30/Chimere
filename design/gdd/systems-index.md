@@ -2,7 +2,8 @@
 
 > **Statut** : Approuvé (CD-SYSTEMS skipped — Lean mode)
 > **Créé** : 2026-04-07
-> **Dernière mise à jour** : 2026-04-07
+> **Dernière mise à jour** : 2026-04-08
+
 > **Concept source** : design/gdd/game-concept.md
 
 ---
@@ -23,12 +24,12 @@ intrinsèquement satisfaisante").
 
 | # | Système | Catégorie | Priorité | Statut | GDD | Dépend de |
 |---|---------|-----------|----------|--------|-----|-----------|
-| S01 | Déplacement joueur | Joueur | MVP | Non commencé | — | — |
+| S01 | Déplacement joueur | Joueur | MVP | Designed | `design/gdd/deplacement-joueur.md` | — |
 | S02 | Saisie et lancer | Mécanique cœur | MVP | Non commencé | — | S01, S05, S06 |
 | S03 | Vagues d'ennemis | Ennemi | MVP | Non commencé | — | S08, S09, S11* |
 | S04 | Dégradation d'environnement | Monde | MVP | Non commencé | — | S02, S05 |
 | S05 | Catalogue d'objets (inféré) | Données | MVP | Complet | `design/gdd/catalogue-objets.md` | — |
-| S06 | Système de dégâts (inféré) | Mécanique cœur | MVP | In Review | `design/gdd/systeme-degats.md` | — |
+| S06 | Système de dégâts (inféré) | Mécanique cœur | MVP | Complet | `design/gdd/systeme-degats.md` | — |
 | S07 | Santé joueur + game-over (inféré) | Joueur | MVP | Non commencé | — | S06 |
 | S08 | Santé ennemie + mort ennemi (inféré) | Ennemi | MVP | Non commencé | — | S06 |
 | S09 | IA ennemie (inféré) | Ennemi | MVP | Non commencé | — | S01 |
@@ -166,10 +167,10 @@ signal game_state_changed(new_state: GameState)
 | Métrique | Valeur |
 |----------|--------|
 | Systèmes identifiés total | 15 |
-| GDDs commencés | 2 |
+| GDDs commencés | 3 |
 | GDDs revus | 0 |
-| GDDs approuvés | 0 |
-| Systèmes MVP conçus | 2 / 13 |
+| GDDs approuvés | 2 |
+| Systèmes MVP conçus | 3 / 13 |
 | Systèmes V1.0 conçus | 0 / 2 |
 
 ---

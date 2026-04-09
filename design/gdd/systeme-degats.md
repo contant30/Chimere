@@ -2,7 +2,7 @@
 
 > **Statut** : Révisé — en attente de re-review
 > **Auteur** : Game Designer + Systems Designer
-> **Dernière mise à jour** : 2026-04-07 (révision post-review)
+> **Dernière mise à jour** : 2026-04-08 (révision post-re-review — 5 bloquants corrigés)
 > **Implémente le pilier** : Pilier 1 — Tout est une arme · Pilier 2 — Le flow avant le challenge
 
 ## Overview
@@ -33,6 +33,8 @@ S06 accepte exactement trois paramètres :
 
 S06 ne lit jamais le catalogue d'objets directement. C'est l'appelant qui résout les paramètres avant l'appel.
 
+> **Contrat de type :** Si le catalogue retourne un `float` pour `damage_base` (ex : objet à stade dégradé avec valeur fractionnaire), S02 applique `floori()` avant l'appel pour garantir que `damage_base` est bien un `int`. S06 ne reçoit jamais de `float` pour ce paramètre — la responsabilité de conversion appartient à l'appelant.
+
 **Règle 3 — Types de dégâts (`DamageType`)**
 | Valeur | Origine | Utilisé par |
 |--------|---------|-------------|
@@ -58,7 +60,12 @@ S06 retourne un `int` unique : les points de dégâts à soustraire à la cible.
 S06 est appelé exactement une fois par contact physique résolu. Si un objet lancé touche plusieurs ennemis, S02 appelle S06 une fois par ennemi touché. S06 ignore le contexte multi-cible.
 
 **Règle 7 — Autorité de multiplication**
+
 S02 transmet `damage_base` et `stage_mult` comme valeurs **brutes**, exactement telles qu'elles sont lues dans le catalogue (S05) ou les données de stade. S02 n'applique aucune pré-multiplication avant l'appel. S06 est le seul système qui exécute `damage_base × stage_mult`. Tout autre appelant (S09) respecte la même règle : pas de pré-multiplication côté appelant. Toute valeur d'entrée déjà multipliée produirait un résultat erroné par double-application.
+
+**Règle 8 — La vitesse physique n'influence pas les dégâts**
+La `LinearVelocity` Jolt de l'objet lancé N'EST PAS un paramètre de S06. Un lancer à 2 m/s produit le même `final_damage` qu'un lancer à 20 m/s, à `damage_base` égal. Cette décision est délibérée : le ressenti de puissance est porté par les valeurs `damage_base` distinctes du catalogue (S05) et le retour sensoriel (S14/S15), non par la cinématique de l'objet. Incorporer la vitesse dans la formule introduirait une dépendance sur le moteur physique, rendrait le calibrage imprévisible, et briserait le modèle stateless de S06.
+*→ Si cette décision est révisée en V1.0, le changement affecte la signature de S06 — breaking change pour S02 et S09.*
 
 ### States and Transitions
 
@@ -195,7 +202,7 @@ S06 expose une seule fonction avec une signature stable : `calculate(damage_base
 | `damage_base` (par objet) | 3 – 15 selon l'objet | Calibré via S05 | Rythme de kill : trop bas = frustrant, trop haut = trivial. Baseline : ennemi ~12 HP, objet moyen = 7. |
 | `melee_dmg_mult` (par stade) | 0.5 – 2.0 | 0.25 – 3.0 | Montée en puissance en cours de vague. Dépasser 2.0 risque de rendre les fins de vague triviales. |
 | `throw_dmg_mult` (par stade) | 0.75 – 2.0 | 0.25 – 3.0 | Identique à mêlée mais pour les lancers. Peut diverger de `melee_dmg_mult` pour renforcer l'intérêt stratégique des lancers. |
-| `KILL_FEEL_MAX` | `5` | 3 – 7 | Contrainte de calibration : tout objet doit tuer un ennemi standard en ≤ 5 frappes à `stage_mult = 1.0`. Implique `HP_ennemi ≤ KILL_FEEL_MAX × damage_base_min`. Si cette contrainte est violée lors du calibrage S05, ajuster `damage_base` des objets légers ou le `HP_ennemi` de base. Violation = Pilier 2 brisé. |
+| `KILL_FEEL_MAX` | `5` | 3 – 7 | Contrainte de calibration : tout objet du catalogue doit tuer un ennemi standard en ≤ 5 frappes à `stage_mult = 1.0`. Implique `HP_ennemi ≤ KILL_FEEL_MAX × damage_base_min`, où `damage_base_min = 3` (l'objet le plus léger du catalogue S05, ex : livre ou bouteille) → `HP_ennemi ≤ 15`. Compatible avec la baseline 12 HP. La plage théorique `damage_base ≥ 1` s'applique aux valeurs de paramètre brutes — la contrainte KILL_FEEL_MAX s'applique aux objets réels du catalogue. Si cette contrainte est violée lors du calibrage S05, ajuster `damage_base` des objets légers ou le `HP_ennemi` de base. Violation = Pilier 2 brisé. |
 
 > Les valeurs de `damage_base` et `stage_mult` sont définies et modifiables dans S05 (catalogue d'objets). `DAMAGE_MIN` et `KILL_FEEL_MAX` sont les constantes de calibration appartenant en propre à S06.
 
@@ -234,14 +241,17 @@ Si des chiffres de dégâts flottants sont ajoutés en V1.0 ou polish, c'est S15
 **AC-S06-05 — Symétrie ennemie**
 Étant donné `damage_base = 3`, `stage_mult = 1.0`, `damage_type = ENEMY_MELEE`, le résultat est `3` — même formule, même résultat que pour MELEE. *(test unitaire)*
 
-**AC-S06-06 — Stateless**
-Appeler la fonction 1000 fois avec les mêmes paramètres produit toujours le même résultat. *(test unitaire, loop)*
+**AC-S06-06 — Absence d'état inter-appels**
+Étant donné trois appels séquentiels : `calculate(7, 1.0, MELEE)` → `calculate(3, 1.5, THROW)` → `calculate(7, 1.0, MELEE)`, le 3ème résultat est identique au 1er (`7`). Ce pattern prouve l'absence d'état entre appels — un système stateful dont l'état aurait été modifié par le 2ème appel échouerait ce test. *(test unitaire)*
 
 **AC-S06-07 — Calibration arithmétique**
 Étant donné `damage_base = 7`, `stage_mult = 1.0`, la formule retourne exactement `7`. Par arithmétique pure : 12 HP / 7 → 2 frappes (7+7 = 14 ≥ 12). La cible 2–3 frappes est validée par le calcul, indépendamment de S05/S08. *(test unitaire — vérification arithmétique)*
 
 **AC-S06-08 — DamageType accepté par la signature**
 Étant donné `damage_base = 5`, `stage_mult = 1.0`, `damage_type = THROW`, la fonction retourne `5` sans erreur — `DamageType` n'affecte pas le calcul. La propagation de `damage_type` aux récepteurs (S08, S07) est testée dans les ACs de S02. *(test unitaire)*
+
+**AC-S06-09 — Couverture THROW avec troncature**
+Étant donné `damage_base = 6`, `stage_mult = 1.2`, `damage_type = THROW`, le résultat est `7` (`floori(7.2)` = 7, pas 8). Confirme que THROW utilise la même formule que MELEE et ENEMY_MELEE, et valide la troncature sur le type THROW spécifiquement. *(test unitaire)*
 
 ## Open Questions
 

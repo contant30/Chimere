@@ -19,36 +19,48 @@ intrinsèquement satisfaisante.
 
 ---
 
+<!-- AVANCEMENT_START -->
 ## État d'avancement
 
-### Conception (en cours)
+> Mis à jour automatiquement au dernier commit — 2026-04-08
 
-| Document | Statut |
-|----------|--------|
-| Art bible (`design/art/art-bible.md`) | Approuvé — 9 sections |
-| Index des systèmes (`design/gdd/systems-index.md`) | Approuvé — 15 systèmes |
-| S05 — Catalogue d'objets (`design/gdd/catalogue-objets.md`) | GDD complet |
-| S06 — Système de dégâts (`design/gdd/systeme-degats.md`) | En cours |
+**Progression globale : 1/15 systèmes complets (6%)**
+
+`█░░░░░░░░░░░░░░░░░░░` 6%
+
+| Statut | Nombre |
+|--------|--------|
+| ✅ Complet | 1 |
+| 🔍 En review | 1 |
+| 🔧 En cours | 0 |
+| ⬜ Non commencé | 13 |
 
 ### Systèmes MVP (13 systèmes)
 
-| # | Système | Couche | GDD |
+| # | Système | Statut | GDD |
 |---|---------|--------|-----|
-| S01 | Déplacement joueur | Foundation | — |
-| S02 | Saisie et lancer ⚠️ | Core | — |
-| S03 | Vagues d'ennemis | Feature | — |
-| S04 | Dégradation d'environnement | Feature | — |
-| S05 | Catalogue d'objets | Foundation | Complet |
-| S06 | Système de dégâts | Foundation | En cours |
-| S07 | Santé joueur + game-over | Core | — |
-| S08 | Santé ennemie + mort ennemi | Core | — |
-| S09 | IA ennemie | Core | — |
-| S10 | Caméra TPS | Core | — |
-| S11 | Gestionnaire d'état de jeu | Feature | — |
-| S12 | Retry / réinitialisation | Presentation | — |
-| S13 | HUD | Presentation | — |
+| S01 | Déplacement joueur | ⬜ Non commencé | — |
+| S02 | Saisie et lancer | ⬜ Non commencé | — |
+| S03 | Vagues d'ennemis | ⬜ Non commencé | — |
+| S04 | Dégradation d'environnement | ⬜ Non commencé | — |
+| S05 | Catalogue d'objets (inféré) | ✅ Complet | 📄 |
+| S06 | Système de dégâts (inféré) | 🔍 In Review | 📄 |
+| S07 | Santé joueur + game-over (inféré) | ⬜ Non commencé | — |
+| S08 | Santé ennemie + mort ennemi (inféré) | ⬜ Non commencé | — |
+| S09 | IA ennemie (inféré) | ⬜ Non commencé | — |
+| S10 | Caméra TPS (inféré) | ⬜ Non commencé | — |
+| S11 | Gestionnaire d'état de jeu (inféré) | ⬜ Non commencé | — |
+| S12 | Retry / réinitialisation (inféré) | ⬜ Non commencé | — |
+| S13 | HUD (inféré) | ⬜ Non commencé | — |
 
-⚠️ S02 = risque #1 — à prototyper en semaine 1.
+### Post-MVP / V1.0 (2 systèmes)
+
+| # | Système | Statut | GDD |
+|---|---------|--------|-----|
+| S14 | Retour audio (inféré) | ⬜ Non commencé | — |
+| S15 | Retour visuel / VFX (inféré) | ⬜ Non commencé | — |
+
+<!-- AVANCEMENT_END -->
 
 ---
 
