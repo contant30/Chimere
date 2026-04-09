@@ -37,132 +37,134 @@
 #   Each entry: name, status, source, referenced_by[], attributes{}, added, revised
 
 version: 1
-last_updated: ""
+last_updated: "2026-04-08"
 
 # ─── ENTITIES ────────────────────────────────────────────────────────────────
-# Named game-world objects: enemies, NPCs, characters, factions, bosses.
-# Register an entity here when it appears in more than one GDD — e.g., an
-# enemy defined in combat.md that also drops items listed in inventory.md.
-#
-# Required fields: name, status, source, referenced_by, added
-# Attribute fields: any key stats that could appear in another GDD
-#   (health, damage, drops, faction, etc.)
 
 entities: []
 
-# Example (remove when first real entry is added):
-#
-# entities:
-#   - name: goblin
-#     status: active              # active | deprecated
-#     source: design/gdd/combat.md
-#     referenced_by:
-#       - design/gdd/combat.md
-#       - design/gdd/inventory.md
-#     health: 40
-#     damage: 8
-#     drops:
-#       - item: goblin_arm        # must match an entry in items section
-#         qty: 1
-#         drop_rate: 0.8          # 0.0–1.0
-#     added: 2026-03-26
-#     revised: ""
-
-
 # ─── ITEMS ───────────────────────────────────────────────────────────────────
-# Named collectables, equipment, consumables, crafting materials, currency.
-# Register an item when its name or value appears in more than one GDD.
-#
-# Required fields: name, status, source, referenced_by, added
-# Attribute fields: value_gold, weight, stackable, category, and any stat
-#   modifiers that another system (e.g., economy, crafting) might reference.
+# MVP catalogue objects are defined in catalogue-objets.md only.
+# They will be promoted to cross-system items when S02 or S04 GDDs reference
+# specific values (e.g. chaise.melee_damage_base, bouteille.throw_damage_base).
 
 items: []
 
-# Example:
-#
-# items:
-#   - name: goblin_arm
-#     status: active
-#     source: design/gdd/combat.md   # drop defined in combat GDD
-#     referenced_by:
-#       - design/gdd/combat.md
-#       - design/gdd/inventory.md    # inventory GDD lists its weight/stack rules
-#       - design/gdd/economy.md      # economy GDD references its sell price
-#     value_gold: 5
-#     weight: 1
-#     stackable: true
-#     category: crafting_material
-#     added: 2026-03-26
-#     revised: ""
-
-
 # ─── FORMULAS ────────────────────────────────────────────────────────────────
-# Named calculations with defined variables and output ranges.
-# Register a formula when its output feeds into another system's input,
-# or when another GDD references it by name.
-#
-# Required fields: name, status, source, referenced_by, variables[],
-#   output_range[min, max], added
-# Optional: expression (the actual formula), notes
 
-formulas: []
-
-# Example:
-#
-# formulas:
-#   - name: damage_formula
-#     status: active
-#     source: design/gdd/combat.md
-#     referenced_by:
-#       - design/gdd/combat.md
-#       - design/gdd/progression.md   # progression GDD scales attack variable
-#     variables:
-#       - attack
-#       - defense
-#       - crit_chance
-#       - crit_multiplier
-#     output_range: [0, 999]
-#     expression: "max(0, attack - defense) * (1 + crit_chance * crit_multiplier)"
-#     notes: "Output feeds into health-system damage intake. Min is 0 (armour
-#       can absorb all damage). Max is uncapped in formula but tuning knob
-#       damage_cap in combat.md clamps at 999."
-#     added: 2026-03-26
-#     revised: ""
-
+formulas:
+  - name: damage_formula
+    status: active
+    source: design/gdd/systeme-degats.md
+    referenced_by:
+      - design/gdd/systeme-degats.md
+      - design/gdd/catalogue-objets.md  # provides damage_base and stage_mult inputs
+    variables:
+      - damage_base   # int, 1–15, provided by caller (S02 reads from catalogue, S09 from enemy def)
+      - stage_mult    # float, 0.5–2.0, provided by caller from stage_data
+      - damage_type   # DamageType enum: MELEE | THROW | ENEMY_MELEE (pass-through for feedback, does not affect math)
+    output_range: [1, 30]
+    expression: "max(DAMAGE_MIN, floori(damage_base * stage_mult))"
+    notes: "DAMAGE_MIN=1 is the floor (see constants). Max theoretical MVP: floori(15 * 2.0)=30.
+      No DAMAGE_CAP for MVP. S05 provides damage_base values; S05 F3 (stage transition) determines
+      which stage_mult is active. S02 is the primary caller; S09 also calls for enemy attacks
+      with stage_mult=1.0. Any new system calling this formula must register in referenced_by."
+    added: 2026-04-08
+    revised: ""
 
 # ─── CONSTANTS ───────────────────────────────────────────────────────────────
-# Named numerical values referenced across multiple systems.
-# Register a constant when it is defined in one GDD but another GDD must
-# agree with it (e.g., gold carry limit defined in economy but checked in
-# inventory, or base inventory slots defined in inventory but displayed in HUD).
-#
-# Required fields: name, status, source, referenced_by, value, unit, added
 
-constants: []
+constants:
+  - name: DAMAGE_MIN
+    status: active
+    source: design/gdd/systeme-degats.md
+    referenced_by:
+      - design/gdd/systeme-degats.md
+      - design/gdd/catalogue-objets.md  # catalogue guarantees melee_damage_base >= 1 (consistent)
+    value: 1
+    unit: HP
+    notes: "Absolute floor for damage_formula output. Every player action or enemy attack
+      deals at least 1 HP damage. Systems receiving damage (S07, S08) can rely on this floor."
+    added: 2026-04-08
+    revised: ""
 
-# Example:
-#
-# constants:
-#   - name: gold_carry_limit
-#     status: active
-#     source: design/gdd/economy.md
-#     referenced_by:
-#       - design/gdd/economy.md
-#       - design/gdd/inventory.md   # inventory enforces the carry limit
-#       - design/gdd/ui.md          # HUD displays current gold vs limit
-#     value: 9999
-#     unit: gold
-#     added: 2026-03-26
-#     revised: ""
-#
-#   - name: base_inventory_slots
-#     status: active
-#     source: design/gdd/inventory.md
-#     referenced_by:
-#       - design/gdd/inventory.md
-#       - design/gdd/progression.md  # progression unlocks additional slots
-#     value: 20
-#     unit: slots
-#     added: 2026-03-26
-#     revised: ""
+  - name: HP_ennemi_basique
+    status: active
+    source: design/gdd/systeme-degats.md
+    referenced_by:
+      - design/gdd/systeme-degats.md
+      - design/gdd/catalogue-objets.md  # calibration anchor for damage_base values and kill-feel target
+    value: 12
+    unit: HP
+    notes: "Baseline HP for a standard enemy in MVP. Used in S06 kill-feel calibration
+      (2-3 melee hits = 7+7=14 >= 12) and S05 (damage_base values chosen so chaise/lampe kill
+      in 2-3 hits). S08 (enemy health system) MUST use this value as its baseline when designed.
+      If S08 changes this, update S05 damage_base values and S06 calibration examples."
+    added: 2026-04-08
+    revised: ""
+
+  - name: KILL_FEEL_MAX
+    status: active
+    source: design/gdd/systeme-degats.md
+    referenced_by:
+      - design/gdd/systeme-degats.md
+      - design/gdd/catalogue-objets.md  # all damage_base values must satisfy this constraint
+    value: 5
+    unit: hits
+    notes: "Calibration constraint: any real-use catalogue object must kill a standard enemy
+      (HP_ennemi_basique=12) in <= 5 hits at stage_mult=1.0. Applies to the primary use mode
+      of each object (throw for throw-primary objects, melee for melee-primary). Objects with
+      melee_damage_base=1 (mug_cafe, livre) are throw-primary — their melee role is cosmetic;
+      the constraint applies to their throw_damage_base instead. Violation = Pilier 2 broken."
+    added: 2026-04-08
+    revised: ""
+
+  - name: damage_base_ceiling
+    status: active
+    source: design/gdd/catalogue-objets.md
+    referenced_by:
+      - design/gdd/catalogue-objets.md
+      - design/gdd/systeme-degats.md  # S06 parameter range is 1-15
+    value: 15
+    unit: HP
+    notes: "Maximum damage_base (melee or throw) for any catalogue object. S06 parameter range
+      is 1-15. MVP highest actual value: chaise throw_damage_base=10. The ceiling of 15 is
+      reserved for a hypothetical heavy weapon; do not use for common objects."
+    added: 2026-04-08
+    revised: ""
+
+  - name: stage_mult_ceiling
+    status: active
+    source: design/gdd/catalogue-objets.md
+    referenced_by:
+      - design/gdd/catalogue-objets.md
+      - design/gdd/systeme-degats.md  # S06 tuning knob safe max = 2.0
+    value: 2.0
+    unit: multiplier
+    notes: "Maximum stage_mult (melee or throw) for any StageData entry. Exception: bouteille
+      throw_dmg_mult at final stage = 2.0 exactly (design intent: one-shot capability). Values
+      above 2.0 risk trivializing late-wave combat. S06 and S05 agree on this ceiling."
+    added: 2026-04-08
+    revised: ""
+
+  - name: throw_dmg_mult_safe_floor
+    status: active
+    source: design/gdd/systeme-degats.md
+    referenced_by:
+      - design/gdd/systeme-degats.md
+      - design/gdd/catalogue-objets.md  # ⚠ THREE entries fall below this floor (see note)
+    value: 0.75
+    unit: multiplier
+    notes: "S06 Tuning Knob safe minimum for throw_dmg_mult. S05 F2 variable table states
+      the throw_dmg_mult range as 0.3-2.0 — broader than this safe floor.
+      KNOWN ADVISORY INCONSISTENCY: Three S05 entries fall below 0.75:
+        - lampe_bureau stade 2: throw_dmg_mult=0.7
+        - livre stade 1: throw_dmg_mult=0.7
+        - moniteur stade 1: throw_dmg_mult=0.6
+      These are intentional design choices (degraded objects deal less throw damage),
+      not formula errors. The formula remains correct at these values. However, if these
+      objects were throw-primary, they might violate KILL_FEEL_MAX at late stages.
+      Flagged for validation at prototype. Resolution: either raise S06 safe floor advisory
+      to acknowledge intended sub-0.75 values, or adjust S05 stade values upward."
+    added: 2026-04-08
+    revised: ""

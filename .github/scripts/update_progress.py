@@ -1,138 +1,102 @@
-#!/usr/bin/env python3
-"""
-Met à jour la section avancement du README en lisant systems-index.md.
-Usage : python update_progress.py
-"""
-
+import os
+import requests
+import subprocess
 import re
-from pathlib import Path
-from datetime import date
 
-ROOT = Path(__file__).parent.parent.parent
-SYSTEMS_INDEX = ROOT / "design" / "gdd" / "systems-index.md"
-README = ROOT / "README.md"
+REPO = "contant30/Chimere"
+TOKEN = os.getenv("GITHUB_TOKEN")
+HEADERS = {"Authorization": f"token {TOKEN}"} if TOKEN else {}
 
-MARKER_START = "<!-- AVANCEMENT_START -->"
-MARKER_END = "<!-- AVANCEMENT_END -->"
+# -------- ISSUES --------
+def get_issues():
+    url = f"https://api.github.com/repos/{REPO}/issues?state=all&per_page=100"
+    data = requests.get(url, headers=HEADERS).json()
 
-STATUS_EMOJI = {
-    "Complet":        "✅",
-    "In Review":      "🔍",
-    "En cours":       "🔧",
-    "Non commencé":   "⬜",
-}
+    open_issues = []
+    closed_issues = []
 
-PRIORITY_LABEL = {
-    "MVP":  "MVP",
-    "V1.0": "V1.0",
-}
-
-
-def parse_systems(path: Path) -> list[dict]:
-    text = path.read_text(encoding="utf-8")
-    systems = []
-    in_table = False
-    for line in text.splitlines():
-        if re.match(r"\|\s*#\s*\|", line):
-            in_table = True
+    for i in data:
+        if "pull_request" in i:
             continue
-        if in_table and re.match(r"\|[-\s|]+\|", line):
-            continue
-        if in_table and line.startswith("|"):
-            cols = [c.strip() for c in line.strip().strip("|").split("|")]
-            if len(cols) >= 6:
-                systems.append({
-                    "id":       cols[0],
-                    "nom":      cols[1],
-                    "categorie":cols[2],
-                    "priorite": cols[3],
-                    "statut":   cols[4],
-                    "gdd":      cols[5],
-                })
-        elif in_table:
-            break
-    return systems
+        entry = {"num": i['number'], "title": i['title']}
+        if i["state"] == "open":
+            open_issues.append(entry)
+        else:
+            closed_issues.append(entry)
 
+    return open_issues[:5], closed_issues[:5], len(open_issues), len(closed_issues)
 
-def build_section(systems: list[dict]) -> str:
-    total = len(systems)
-    done  = sum(1 for s in systems if s["statut"] == "Complet")
-    review = sum(1 for s in systems if s["statut"] == "In Review")
-    wip   = sum(1 for s in systems if s["statut"] == "En cours")
-    todo  = total - done - review - wip
+# -------- COMMITS --------
+def get_commits():
+    try:
+        raw = subprocess.check_output(
+            ["git", "log", "-20", "--pretty=format:%s"]
+        ).decode("utf-8")
+        return raw.split("\n")[:5]
+    except subprocess.CalledProcessError:
+        return []
 
-    pct = int(done / total * 100) if total else 0
-    bar_filled = pct // 5
-    bar = "█" * bar_filled + "░" * (20 - bar_filled)
+# -------- BARRES --------
+def cumulative_bar(closed, open_, length=30):
+    total = closed + open_
+    if total == 0:
+        return "🟦" * length + " 0%"
+    closed_blocks = int((closed / total) * length)
+    open_blocks = length - closed_blocks
+    percent = int((closed / total) * 100)
+    return "✅" * closed_blocks + "🕒" * open_blocks + f" {percent}%"
 
-    mvp_systems   = [s for s in systems if s["priorite"] == "MVP"]
-    v1_systems    = [s for s in systems if s["priorite"] == "V1.0"]
+def issue_bar(index, total, length=10):
+    filled = int(((index+1)/total)*length)
+    empty = length - filled
+    return "🟩"*filled + "⬜"*empty
 
-    def rows(lst):
-        lines = []
-        for s in lst:
-            emoji = STATUS_EMOJI.get(s["statut"], "❓")
-            gdd = "—" if s["gdd"] == "—" else "📄"
-            lines.append(f"| {s['id']} | {s['nom']} | {emoji} {s['statut']} | {gdd} |")
-        return "\n".join(lines)
+# -------- UPDATE README --------
+def replace(content, start, end, new):
+    pattern = re.compile(f"{start}.*?{end}", re.DOTALL)
+    return pattern.sub(f"{start}\n{new}\n{end}", content)
 
-    today = date.today().strftime("%Y-%m-%d")
+# -------- MAIN --------
+open_issues, closed_issues, open_count, closed_count = get_issues()
+commits = get_commits()
+total = open_count + closed_count
 
-    section = f"""{MARKER_START}
-## État d'avancement
+# Barre cumulative avec emojis
+progress = cumulative_bar(closed_count, open_count)
 
-> Mis à jour automatiquement au dernier commit — {today}
+# Stats globales
+stats = f"""
+| ✅ Fermées | 🕒 Ouvertes | 📊 Total |
+|-----------|------------|----------|
+| {closed_count} | {open_count} | {total} |
+"""
 
-**Progression globale : {done}/{total} systèmes complets ({pct}%)**
+# Fonction pour créer tableau d'issues avec mini-barres emojis
+def issues_table(title, issues_list):
+    if not issues_list:
+        return f"**{title}**\n- Aucune"
+    table = f"**{title}**\n\n"
+    total_issues = len(issues_list)
+    for idx, issue in enumerate(issues_list):
+        bar = issue_bar(idx, total_issues)
+        table += f"{bar} #{issue['num']} {issue['title']}\n"
+    return table
 
-`{bar}` {pct}%
+issues_open_table = issues_table("🕒 Issues ouvertes", open_issues)
+issues_closed_table = issues_table("✅ Issues fermées", closed_issues)
 
-| Statut | Nombre |
-|--------|--------|
-| ✅ Complet | {done} |
-| 🔍 En review | {review} |
-| 🔧 En cours | {wip} |
-| ⬜ Non commencé | {todo} |
+# Activité récente
+activity = "\n".join([f"⚡ {c}" for c in commits]) if commits else "⚡ Pas d'activité récente"
 
-### Systèmes MVP ({len(mvp_systems)} systèmes)
+# Lecture et mise à jour du README
+with open("README.md", "r", encoding="utf-8") as f:
+    content = f.read()
 
-| # | Système | Statut | GDD |
-|---|---------|--------|-----|
-{rows(mvp_systems)}
+content = replace(content, "<!-- START_SECTION:progress -->", "<!-- END_SECTION:progress -->", progress)
+content = replace(content, "<!-- START_SECTION:stats -->", "<!-- END_SECTION:stats -->", stats)
+content = replace(content, "<!-- START_SECTION:issues -->", "<!-- END_SECTION:issues -->", issues_open_table)
+content = replace(content, "<!-- START_SECTION:closed_issues -->", "<!-- END_SECTION:closed_issues -->", issues_closed_table)
+content = replace(content, "<!-- START_SECTION:activity -->", "<!-- END_SECTION:activity -->", activity)
 
-### Post-MVP / V1.0 ({len(v1_systems)} systèmes)
-
-| # | Système | Statut | GDD |
-|---|---------|--------|-----|
-{rows(v1_systems)}
-
-{MARKER_END}"""
-    return section
-
-
-def update_readme(readme_path: Path, new_section: str):
-    content = readme_path.read_text(encoding="utf-8")
-
-    if MARKER_START in content and MARKER_END in content:
-        pattern = re.compile(
-            re.escape(MARKER_START) + r".*?" + re.escape(MARKER_END),
-            re.DOTALL
-        )
-        updated = pattern.sub(new_section, content)
-    else:
-        # Insère après la première ligne de titre
-        updated = re.sub(
-            r"(# .+?\n)",
-            r"\1\n" + new_section + "\n",
-            content,
-            count=1
-        )
-
-    readme_path.write_text(updated, encoding="utf-8")
-    print(f"README mis à jour — {date.today()}")
-
-
-if __name__ == "__main__":
-    systems = parse_systems(SYSTEMS_INDEX)
-    section = build_section(systems)
-    update_readme(README, section)
+with open("README.md", "w", encoding="utf-8") as f:
+    f.write(content)

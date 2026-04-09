@@ -1,73 +1,156 @@
-# Saisir
+# 🔮 Chimere — Saisir
 
-Brawler 3D à la troisième personne — une seule pièce, des objets à saisir, des ennemis à fracasser.
+[![README Dashboard](https://github.com/contant30/Chimere/actions/workflows/update-readme.yml/badge.svg)](https://github.com/contant30/Chimere/actions/workflows/update-readme.yml)
 
-**Moteur** : Godot 4.6.2 · **Langage** : GDScript · **Plateforme** : PC (Steam / itch.io)
-
----
-
-## Concept
-
-Saisir place le joueur dans une pièce fermée face à des vagues d'ennemis.
-La mécanique centrale : saisir des objets de l'environnement, les lancer sur les ennemis,
-les utiliser en mêlée. L'environnement se dégrade au fil des combats.
-La profondeur vient des interactions entre la physique (Jolt) et l'espace, pas d'une
-progression persistante ou de systèmes complexes.
-
-**Hypothèse centrale** : les joueurs trouvent la boucle *saisir → frapper → enchaîner*
-intrinsèquement satisfaisante.
+> 🎮 Brawler 3D à la troisième personne  
+> Une pièce. Des objets. Des ennemis. À toi de saisir.
 
 ---
 
-<!-- AVANCEMENT_START -->
-## État d'avancement
+## 🎮 Concept
 
-> Mis à jour automatiquement au dernier commit — 2026-04-08
+**Saisir** place le joueur dans une pièce fermée face à des vagues d'ennemis.
 
-**Progression globale : 1/15 systèmes complets (6%)**
+🧠 Boucle centrale :
+> saisir → frapper → enchaîner
 
-`█░░░░░░░░░░░░░░░░░░░` 6%
+- Interaction physique avancée (Jolt)
+- Environnement destructible
+- Gameplay émergent basé sur la physique
 
-| Statut | Nombre |
-|--------|--------|
-| ✅ Complet | 1 |
-| 🔍 En review | 1 |
-| 🔧 En cours | 0 |
-| ⬜ Non commencé | 13 |
-
-### Systèmes MVP (13 systèmes)
-
-| # | Système | Statut | GDD |
-|---|---------|--------|-----|
-| S01 | Déplacement joueur | ⬜ Non commencé | — |
-| S02 | Saisie et lancer | ⬜ Non commencé | — |
-| S03 | Vagues d'ennemis | ⬜ Non commencé | — |
-| S04 | Dégradation d'environnement | ⬜ Non commencé | — |
-| S05 | Catalogue d'objets (inféré) | ✅ Complet | 📄 |
-| S06 | Système de dégâts (inféré) | 🔍 In Review | 📄 |
-| S07 | Santé joueur + game-over (inféré) | ⬜ Non commencé | — |
-| S08 | Santé ennemie + mort ennemi (inféré) | ⬜ Non commencé | — |
-| S09 | IA ennemie (inféré) | ⬜ Non commencé | — |
-| S10 | Caméra TPS (inféré) | ⬜ Non commencé | — |
-| S11 | Gestionnaire d'état de jeu (inféré) | ⬜ Non commencé | — |
-| S12 | Retry / réinitialisation (inféré) | ⬜ Non commencé | — |
-| S13 | HUD (inféré) | ⬜ Non commencé | — |
-
-### Post-MVP / V1.0 (2 systèmes)
-
-| # | Système | Statut | GDD |
-|---|---------|--------|-----|
-| S14 | Retour audio (inféré) | ⬜ Non commencé | — |
-| S15 | Retour visuel / VFX (inféré) | ⬜ Non commencé | — |
-
-<!-- AVANCEMENT_END -->
+🎯 Hypothèse :
+> Le fun vient directement des interactions physiques, sans systèmes complexes.
 
 ---
 
-## Stack technique
+## 🛠️ Stack technique
 
-- **Moteur** : Godot 4.6.2 (Jolt Physics par défaut)
-- **Langage** : GDScript (typage statique)
-- **Rendu** : Forward+
-- **Plateforme cible** : PC (Steam / itch.io)
-- **Tests** : GUT (Godot Unit Test)
+- 🎮 Moteur : Godot 4.6.2 (Jolt Physics)
+- 🧠 Langage : GDScript (typé)
+- 🖥️ Plateforme : PC (Steam / itch.io)
+- 🧪 Tests : GUT
+
+---
+
+## 📍 État du dépôt
+
+Le travail actuel est surtout **design et documentation** : concept, art bible, GDD par système, registre d’entités. Le **projet Godot** (`project.godot`, scènes, scripts) n’est **pas encore** versionné ici ; l’implémentation suivra une fois les GDD MVP stabilisés.
+
+---
+
+## 🗂️ Structure du dépôt
+
+| Dossier | Rôle |
+|--------|------|
+| [`design/`](design/) | Concept, GDD, art bible, registre (`design/registry/`) |
+| [`production/`](production/) | Suivi de session et état de production |
+| [`docs/`](docs/) | Références moteur et documentation studio |
+| [`.github/`](.github/) | CI : dashboard README, scripts associés |
+
+---
+
+## 📚 Documentation utile
+
+- [Concept jeu](design/gdd/game-concept.md)
+- [Index des systèmes](design/gdd/systems-index.md)
+- [Art bible](design/art/art-bible.md)
+- [État de session (tâche en cours)](production/session-state/active.md)
+
+---
+
+## 📊 Dashboard Projet
+
+Les blocs entre `<!-- START_SECTION:... -->` et `<!-- END_SECTION:... -->` ci‑dessous sont **mis à jour automatiquement** par le workflow GitHub Actions [README Dashboard](.github/workflows/update-readme.yml) (push + toutes les 6 h). Ne pas les modifier à la main.
+
+### 📈 Progression globale (Issues)
+<!-- START_SECTION:progress -->
+✅✅✅✅✅✅🕒🕒🕒🕒🕒🕒🕒🕒🕒🕒🕒🕒🕒🕒🕒🕒🕒🕒🕒🕒🕒🕒🕒🕒 20%
+<!-- END_SECTION:progress -->
+
+### 📊 Statistiques
+<!-- START_SECTION:stats -->
+
+| ✅ Fermées | 🕒 Ouvertes | 📊 Total |
+|-----------|------------|----------|
+| 2 | 8 | 10 |
+
+<!-- END_SECTION:stats -->
+
+---
+
+### 🕒 Roadmap (Issues ouvertes)
+<!-- START_SECTION:issues -->
+**🕒 Issues ouvertes**
+
+🟩🟩⬜⬜⬜⬜⬜⬜⬜⬜ #10 S10 Caméra TPS
+🟩🟩🟩🟩⬜⬜⬜⬜⬜⬜ #9 S09 IA ennemie
+🟩🟩🟩🟩🟩🟩⬜⬜⬜⬜ #8 S08 Santé ennemie
+🟩🟩🟩🟩🟩🟩🟩🟩⬜⬜ #7 S07 Santé joueur
+🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩 #4 S04 Dégradation environnement
+
+<!-- END_SECTION:issues -->
+
+---
+
+### ✅ Dernières tâches complétées
+<!-- START_SECTION:closed_issues -->
+**✅ Issues fermées**
+
+🟩🟩🟩🟩🟩⬜⬜⬜⬜⬜ #6 S06 Dégâts
+🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩 #5 S05 Catalogue objets
+
+<!-- END_SECTION:closed_issues -->
+
+---
+
+### ⚡ Activité récente
+<!-- START_SECTION:activity -->
+⚡ Update update-readme.yml
+⚡ Update update-readme.yml
+⚡ 📊 auto update dashboard
+⚡ Update create_mvp_issues.py
+⚡ 📊 auto update dashboard
+<!-- END_SECTION:activity -->
+
+---
+
+## 🧩 Systèmes MVP
+
+Résumé manuel pour lecture rapide. **Source de vérité pour l’avancement ticketé** : [issues GitHub](https://github.com/contant30/Chimere/issues) (le tableau peut être légèrement en retard par rapport aux issues).
+
+| ID  | Système | Statut |
+|-----|--------|--------|
+| S01 | Déplacement joueur | 🔍 In Review |
+| S02 | Saisie et lancer | ⬜ |
+| S03 | Vagues d'ennemis | ⬜ |
+| S04 | Dégradation environnement | ⬜ |
+| S05 | Catalogue objets | ✅ |
+| S06 | Dégâts | ✅ |
+| S07 | Santé joueur | ⬜ |
+| S08 | Santé ennemie | ⬜ |
+| S09 | IA ennemie | ⬜ |
+| S10 | Caméra TPS | ⬜ |
+| S11 | Game state | ⬜ |
+| S12 | Retry | ⬜ |
+| S13 | HUD | ⬜ |
+
+---
+
+## 🎯 Vision
+
+Créer une expérience courte, intense et **hautement satisfaisante mécaniquement**.
+
+---
+
+## 📌 Objectif actuel
+Valider que la boucle **physique = fun** sans progression artificielle.
+
+---
+
+## 📄 Licence
+
+[MIT](LICENSE) — Copyright (c) 2026 Donchitos.
+
+## 🤝 Contribution
+
+Ouvrir une [issue](https://github.com/contant30/Chimere/issues) ou une PR en respectant le protocole du dépôt (`CLAUDE.md`, revues design). Ne pas éditer les sections du dashboard entre les commentaires `START_SECTION` / `END_SECTION`.

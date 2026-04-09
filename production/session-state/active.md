@@ -4,7 +4,7 @@
 
 ## Tâche actuelle
 
-S02 — Saisie et lancer : prochain dans l'ordre de conception (risque #1)
+S02 — Saisie et lancer : conception en cours
 
 ## Progression
 
@@ -12,15 +12,17 @@ S02 — Saisie et lancer : prochain dans l'ordre de conception (risque #1)
 - [x] Systems index (`design/gdd/systems-index.md`) — 15 systèmes identifiés, ordre de conception établi
 - [x] S05 — Catalogue d'objets (`design/gdd/catalogue-objets.md`) — GDD complet, toutes sections écrites
 - [x] S06 — Système de dégâts (`design/gdd/systeme-degats.md`) — GDD approuvé, 9 ACs, Règle 8 (velocity), KILL_FEEL_MAX damage_base_min=3
-- [x] S01 — Déplacement joueur (`design/gdd/deplacement-joueur.md`) — GDD Designed, 10 ACs, CharacterBody3D+Jolt, saut simple, strafe libre, 6 tuning knobs
+- [x] S01 — Déplacement joueur (`design/gdd/deplacement-joueur.md`) — GDD In Review, 11 ACs, CharacterBody3D+Jolt, coyote time, 9 tuning knobs
+- [x] Entity registry (`design/registry/entities.yaml`) — peuplé : 1 formule, 5 constantes
+- [ ] S02 — Saisie et lancer (`design/gdd/saisie-lancer.md`) — IN DESIGN (squelette créé)
 
 ## Section actuelle
 
-—
+Overview (Section A)
 
 ## Fichiers en cours
 
-—
+`design/gdd/saisie-lancer.md`
 
 ## Décisions clés
 

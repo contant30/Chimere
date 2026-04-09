@@ -24,7 +24,7 @@ intrinsèquement satisfaisante").
 
 | # | Système | Catégorie | Priorité | Statut | GDD | Dépend de |
 |---|---------|-----------|----------|--------|-----|-----------|
-| S01 | Déplacement joueur | Joueur | MVP | Designed | `design/gdd/deplacement-joueur.md` | — |
+| S01 | Déplacement joueur | Joueur | MVP | In Review | `design/gdd/deplacement-joueur.md` | — |
 | S02 | Saisie et lancer | Mécanique cœur | MVP | Non commencé | — | S01, S05, S06 |
 | S03 | Vagues d'ennemis | Ennemi | MVP | Non commencé | — | S08, S09, S11* |
 | S04 | Dégradation d'environnement | Monde | MVP | Non commencé | — | S02, S05 |
