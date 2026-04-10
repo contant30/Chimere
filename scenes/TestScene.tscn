@@ -1,0 +1,43 @@
+[gd_scene load_steps=5 format=3 uid="uid://dwxvj62gy7s1k"]
+
+[sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_floor_test"]
+sky_top_color = Color(0.35, 0.55, 0.85, 1)
+sky_horizon_color = Color(0.65, 0.72, 0.82, 1)
+ground_bottom_color = Color(0.12, 0.11, 0.1, 1)
+ground_horizon_color = Color(0.35, 0.33, 0.3, 1)
+
+[sub_resource type="Sky" id="Sky_floor_test"]
+sky_material = SubResource("ProceduralSkyMaterial_floor_test")
+
+[sub_resource type="Environment" id="Environment_floor_test"]
+background_mode = 2
+sky = SubResource("Sky_floor_test")
+ambient_light_source = 2
+ambient_light_energy = 0.4
+
+[sub_resource type="PlaneMesh" id="PlaneMesh_floor_test"]
+size = Vector2(20, 20)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_floor_test"]
+size = Vector3(20, 0.2, 20)
+
+[node name="TestScene" type="Node3D"]
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
+environment = SubResource("Environment_floor_test")
+
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="."]
+transform = Transform3D(0.866025, -0.353553, 0.353553, 0, 0.707107, 0.707107, -0.5, -0.612372, 0.612372, 6, 10, 6)
+shadow_enabled = true
+
+[node name="Camera3D" type="Camera3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 0.939693, 0.34202, 0, -0.34202, 0.939693, 0, 2.8, 8.5)
+current = true
+
+[node name="Floor" type="StaticBody3D" parent="."]
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="Floor"]
+mesh = SubResource("PlaneMesh_floor_test")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Floor"]
+shape = SubResource("BoxShape3D_floor_test")

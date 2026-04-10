@@ -26,7 +26,7 @@
 - 🎮 Moteur : Godot 4.6.2 (Jolt Physics)
 - 🧠 Langage : GDScript (typé)
 - 🖥️ Plateforme : PC (Steam / itch.io)
-- 🧪 Tests : GUT (prévu ; aucune suite dans le dépôt tant que le projet Godot n’est pas versionné)
+- 🧪 Tests : GUT (prévu via `/test-setup`) ; aucune suite automatisée tant que le plugin n’est pas ajouté
 
 ---
 
@@ -34,7 +34,9 @@
 
 **Phase design (pré-prod) terminée** — aligné sur [session active](production/session-state/active.md) (2026-04-10) : art bible, index des systèmes, GDD MVP S01–S13 approuvés, ADR-0001..0014 `Accepted`, traçabilité 48/48 COUVERT — verdict PASS ([revue architecture](docs/architecture/architecture-review-2026-04-10b.md)).
 
-**Code jeu :** pas encore dans ce dépôt (`project.godot`, scènes, scripts). Prochaine étape : sprint d’implémentation, priorité **S02 — Saisie et lancer** (risque n°1 documenté).
+**Projet Godot :** versionné dans ce dépôt — [`project.godot`](project.godot) (Godot **4.6**, Forward+, **Jolt Physics**), scène de test [`scenes/TestScene.tscn`](scenes/TestScene.tscn), icône [`icon.svg`](icon.svg), arborescences [`src/`](src/), [`assets/`](assets/), [`tests/`](tests/). Aucun script `.gd` gameplay pour l’instant.
+
+**Prochaine étape :** implémentation **S02 — Saisie et lancer** (risque n°1 documenté), puis validation de la boucle physique en jeu.
 
 **README :** sections dashboard ci-dessous tenues **à la main** (plus de workflow GitHub Actions associé).
 
@@ -44,6 +46,11 @@
 
 | Dossier | Rôle |
 |--------|------|
+| Racine | [`project.godot`](project.godot), [`icon.svg`](icon.svg) |
+| [`scenes/`](scenes/) | Scènes Godot (scène principale : `TestScene.tscn`) |
+| [`src/`](src/) | Code GDScript — `core/`, `gameplay/` (player, enemies, objects), `ui/` |
+| [`assets/`](assets/) | Art, audio, données (`art/`, `audio/`, `data/`) |
+| [`tests/`](tests/) | Tests automatisés (`unit/`, `integration/`) — GUT à brancher |
 | [`design/`](design/) | Concept, GDD, art bible, registre (`design/registry/`) |
 | [`production/`](production/) | Suivi de session et état de production |
 | [`docs/`](docs/) | ADR, traçabilité, références moteur, registres (`docs/registry/`) |
@@ -66,14 +73,15 @@
 
 ## 📊 Dashboard projet
 
-_Snapshot manuel — chiffres issus des [issues GitHub](https://github.com/contant30/Chimere/issues). **2026-04-10 :** corps d’issues réalignés (design vs code) ; **#1, #2, #3, #5, #6, #13** rouverts pour suivre l’implémentation tant qu’il n’y a pas de code dans le dépôt._
+_Snapshot manuel — chiffres issus des [issues GitHub](https://github.com/contant30/Chimere/issues). Le squelette Godot (projet + scène test) ne ferme pas les issues : elles suivent la **logique gameplay** dans `src/`._
 
 ### Jalons (lecture rapide)
 
 | Jalon | Avancement |
 |-------|----------------|
 | Design MVP (GDD + ADR S01–S13) | ✅ Terminé |
-| Implémentation Godot dans ce dépôt | ⬜ Non démarré |
+| Projet Godot dans ce dépôt (squelette) | ✅ `project.godot`, `TestScene`, arborescence `src/` / `assets/` / `tests/` |
+| Implémentation gameplay MVP (S01–S13) | ⬜ Non démarrée |
 | Issues GitHub **fermées** (livraison considérée terminée) | **0** / 13 |
 
 ### Progression globale (issues fermées)
@@ -110,6 +118,7 @@ _Aucune pour l’instant — fermer une issue quand la section **Implémentation
 
 ### Activité récente (git)
 
+- `chore(godot): init project, TestScene, tree + README`
 - `mise à jours adr`
 - `Add HUD requirements and health constants to registries`
 - `docs(gdd): S08 → S12 — santé ennemie, IA, caméra, vagues, état, retry`
@@ -120,7 +129,7 @@ _Aucune pour l’instant — fermer une issue quand la section **Implémentation
 
 ## 🧩 Systèmes MVP
 
-**Colonnes :** *GDD* = spécification + ADR prêts dans le dépôt. *Code* = implémentation dans ce dépôt Godot (encore absente).  
+**Colonnes :** *GDD* = spécification + ADR prêts dans le dépôt. *Code* = logique gameplay dans `src/` (scène vide ou squelette seul = ⬜).  
 **Issues :** toutes **ouvertes** jusqu’à livraison code ; le corps distingue **Design** (coché) et **Implémentation Godot** (à faire).
 
 | ID  | Système | GDD | Code | Issue |
@@ -151,7 +160,7 @@ Créer une expérience courte, intense et **hautement satisfaisante mécaniqueme
 
 ## 📌 Objectif actuel
 
-Versionner le **projet Godot** dans ce dépôt et attaquer l’implémentation en commençant par **S02 — Saisie et lancer**, puis valider en jeu que la boucle **physique = fun** sans progression artificielle.
+Le **projet Godot** est dans ce dépôt : ouvrir le dossier dans **Godot 4.6.2**, lancer `TestScene.tscn` (F5) pour valider Jolt / Forward+. Ensuite implémenter **S02 — Saisie et lancer**, puis vérifier en jeu que la boucle **physique = fun** sans progression artificielle.
 
 ---
 

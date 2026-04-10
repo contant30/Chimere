@@ -41,8 +41,8 @@ dist/
 .godot/
 *.translation
 export_presets.cfg
-# Uncomment if using Godot:
-# *.import
+# Godot: .import sidecars (commit if you need deterministic imports without .godot cache)
+*.import
 
 # === Engine: Unity ===
 [Ll]ibrary/

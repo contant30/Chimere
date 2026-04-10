@@ -1,0 +1,25 @@
+; Engine configuration file.
+; Edit via Project Settings in the Godot editor when possible.
+
+config_version=5
+
+[application]
+
+config/name="Saisir"
+config/description="Brawler 3D — une pièce, des objets, des ennemis."
+run/main_scene="res://scenes/TestScene.tscn"
+config/features=PackedStringArray("4.6", "Forward Plus")
+config/icon="res://icon.svg"
+
+[display]
+
+window/size/viewport_width=1920
+window/size/viewport_height=1080
+
+[rendering]
+
+renderer/rendering_method="forward_plus"
+
+[physics]
+
+3d/physics_engine="Jolt Physics"
