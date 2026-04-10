@@ -30,7 +30,7 @@
 #   Superseded entries:     Grep pattern="status: superseded"
 
 version: 1
-last_updated: "2026-04-09"  # ADR-0002 added: player_body_impulse_coupling
+last_updated: "2026-04-10"  # ADR-0003 added: damage_calculator stances; carry_interrupted added to grab_system_signals
 
 # ─── STATE OWNERSHIP ─────────────────────────────────────────────────────────
 # Who is the authoritative owner of each piece of shared game state.
@@ -85,11 +85,12 @@ interfaces:
       grab_performed(object: RigidBody3D)
       throw_performed(object: RigidBody3D, impulse: Vector3)
       melee_performed(object: RigidBody3D)
-      object_dropped(object: RigidBody3D)
+      object_dropped(object: RigidBody3D)    # dépôt volontaire (input joueur)
+      carry_interrupted(object: RigidBody3D) # fin involontaire (objet détruit en main)
     referenced_by:
       - docs/architecture/adr-0001-grab-system.md
     added: 2026-04-09
-    revised: ""
+    revised: "2026-04-10"  # carry_interrupted ajouté (OQ-S13-01 résolu)
 
 # Example:
 #
@@ -149,7 +150,19 @@ performance_budgets: []
 # Register an API decision when the choice is non-obvious and other ADRs might
 # make a different choice for the same purpose without knowing this was decided.
 
-api_decisions: []
+api_decisions:
+  - purpose: damage_calculation
+    status: active
+    api: "DamageCalculator.calculate(damage_base: int, stage_mult: float, damage_type: DamageCalculator.DamageType) -> int"
+    not: "Autoload singleton; inline formula per-caller; instance methods"
+    adr: docs/architecture/adr-0003-damage-calculator.md
+    reason: "static func dans class_name offre l'accès global sans coût d'instanciation.
+      La formule est stateless — aucun état à gérer. Centralise S06 Règle 1 : un seul
+      point de modification si la formule change."
+    referenced_by:
+      - docs/architecture/adr-0003-damage-calculator.md
+    added: 2026-04-10
+    revised: ""
 
 # Example:
 #
@@ -206,6 +219,18 @@ forbidden_patterns:
       de saisie S02 (le joueur pourrait déplacer un objet qu'il tente de saisir)."
     adr: docs/architecture/adr-0002-player-body-type.md
     added: 2026-04-09
+
+  - pattern: damage_calculator_stateful
+    status: active
+    description: "Interdit d'ajouter une variable d'instance, un signal, ou tout état
+      à DamageCalculator. La classe ne doit contenir que l'enum DamageType et
+      static func calculate(). Toute logique d'état autour des dégâts appartient
+      à l'appelant (S02, S09) ou aux récepteurs (S07, S08)."
+    why: "DamageCalculator est une fonction pure stateless par définition (S06 Règle 1).
+      Ajouter un état casserait la testabilité directe (appel sans scène) et créerait
+      une dépendance cachée entre tous les appelants via l'état partagé."
+    adr: docs/architecture/adr-0003-damage-calculator.md
+    added: 2026-04-10
 
 # Example:
 #

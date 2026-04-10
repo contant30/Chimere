@@ -36,7 +36,7 @@ intrinsèquement satisfaisante").
 | S10 | Caméra TPS (inféré) | Caméra | MVP | Non commencé | — | S01 |
 | S11 | Gestionnaire d'état de jeu (inféré) | Infrastructure | MVP | Non commencé | — | S07, S03* |
 | S12 | Retry / réinitialisation (inféré) | Infrastructure | MVP | Non commencé | — | S11 |
-| S13 | HUD (inféré) | Interface | MVP | Non commencé | — | S07, S03, S02 |
+| S13 | HUD | Interface | MVP | In Review | `design/gdd/hud.md` | S07, S03, S02, S11, ADR-0001 |
 | S14 | Retour audio (inféré) | Feedback | V1.0 | Non commencé | — | S02, S07, S08, S03 |
 | S15 | Retour visuel / VFX (inféré) | Feedback | V1.0 | Non commencé | — | S02, S04, S08 |
 

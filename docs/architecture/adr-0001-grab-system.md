@@ -68,6 +68,7 @@ Player (CharacterBody3D)           ← S01
 │     signal throw_performed(obj, impulse)
 │     signal melee_performed(obj)
 │     signal object_dropped(obj)
+│     signal carry_interrupted(obj)
 └── CameraPivot (Node3D)           ← S03 (référence injectée dans GrabSystem)
 
 Listeners (s'abonnent aux signaux de GrabSystem) :
@@ -90,7 +91,8 @@ enum GrabState { EMPTY_HANDS, CARRYING }
 signal grab_performed(object: RigidBody3D)
 signal throw_performed(object: RigidBody3D, impulse: Vector3)
 signal melee_performed(object: RigidBody3D)
-signal object_dropped(object: RigidBody3D)
+signal object_dropped(object: RigidBody3D)   ## Dépôt volontaire (input joueur)
+signal carry_interrupted(object: RigidBody3D) ## Fin involontaire (objet détruit en main)
 
 var state: GrabState = GrabState.EMPTY_HANDS
 var held_object: RigidBody3D = null

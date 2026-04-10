@@ -25,9 +25,406 @@
 # STATUS VALUES: active | deprecated | superseded-by: TR-[system]-NNN
 
 version: 1
-last_updated: ""
+last_updated: "2026-04-10"
 
-requirements: []
+requirements:
+  # --- concept (global constraints from game-concept.md) ---
+  - id: TR-concept-001
+    system: concept
+    gdd: design/gdd/game-concept.md
+    requirement: "Single-room, single-player sessions; no progression between runs (no XP/inventory/levels)."
+    created: 2026-04-10
+    revised: ""
+    status: active
+
+  - id: TR-concept-002
+    system: concept
+    gdd: design/gdd/game-concept.md
+    requirement: "MVP content targets: 8–15 interactive objects and 3 waves (or 3–5), with immediate retry as a core pillar."
+    created: 2026-04-10
+    revised: ""
+    status: active
+
+  # --- systems-index (cross-system contracts) ---
+  - id: TR-systems-index-001
+    system: systems-index
+    gdd: design/gdd/systems-index.md
+    requirement: "S03 (waves) and S11 (game state) resolve circular dependency via signals: S03 publishes wave_started/wave_cleared/all_waves_complete; S11 publishes game_state_changed."
+    created: 2026-04-10
+    revised: ""
+    status: active
+
+  # --- S01: deplacement-joueur ---
+  - id: TR-deplacement-joueur-001
+    system: deplacement-joueur
+    gdd: design/gdd/deplacement-joueur.md
+    requirement: "Player movement uses CharacterBody3D with move_and_slide() for predictable control independent of Jolt rigid bodies."
+    created: 2026-04-10
+    revised: ""
+    status: active
+
+  - id: TR-deplacement-joueur-002
+    system: deplacement-joueur
+    gdd: design/gdd/deplacement-joueur.md
+    requirement: "Player must not push RigidBody3D by passive collision; collision layers/masks must enforce this behavior."
+    created: 2026-04-10
+    revised: ""
+    status: active
+
+  - id: TR-deplacement-joueur-003
+    system: deplacement-joueur
+    gdd: design/gdd/deplacement-joueur.md
+    requirement: "Jump is single-jump with coyote time (COYOTE_FRAMES ≈ 4–6 at 60fps); no double-jump."
+    created: 2026-04-10
+    revised: ""
+    status: active
+
+  - id: TR-deplacement-joueur-004
+    system: deplacement-joueur
+    gdd: design/gdd/deplacement-joueur.md
+    requirement: "Gravity is applied manually each frame and sourced from ProjectSettings physics/3d/default_gravity."
+    created: 2026-04-10
+    revised: ""
+    status: active
+
+  # --- S02: saisie-lancer ---
+  - id: TR-saisie-lancer-001
+    system: saisie-lancer
+    gdd: design/gdd/saisie-lancer.md
+    requirement: "Grab: player can grab any grabbable RigidBody3D inside a cone with grab_range_m (from S05); only one held at a time."
+    created: 2026-04-10
+    revised: ""
+    status: active
+
+  - id: TR-saisie-lancer-002
+    system: saisie-lancer
+    gdd: design/gdd/saisie-lancer.md
+    requirement: "Carry: held object becomes kinematic/frozen and follows a fixed carry_offset; carried collisions do not block the player."
+    created: 2026-04-10
+    revised: ""
+    status: active
+
+  - id: TR-saisie-lancer-003
+    system: saisie-lancer
+    gdd: design/gdd/saisie-lancer.md
+    requirement: "Throw: release uses apply_central_impulse() along camera yaw direction (with slight downward pitch); object returns to dynamic and deals damage on first contact."
+    created: 2026-04-10
+    revised: ""
+    status: active
+
+  - id: TR-saisie-lancer-004
+    system: saisie-lancer
+    gdd: design/gdd/saisie-lancer.md
+    requirement: "GrabSystem must emit signals grab_performed/throw_performed/melee_performed for S13/S08/S04/S11 consumers."
+    created: 2026-04-10
+    revised: ""
+    status: active
+
+  # --- S05: catalogue-objets ---
+  - id: TR-catalogue-objets-001
+    system: catalogue-objets
+    gdd: design/gdd/catalogue-objets.md
+    requirement: "Object catalogue is static data (Resources); each interactive object holds a direct @export reference to its catalogue entry; no runtime global lookup."
+    created: 2026-04-10
+    revised: ""
+    status: active
+
+  - id: TR-catalogue-objets-002
+    system: catalogue-objets
+    gdd: design/gdd/catalogue-objets.md
+    requirement: "Catalogue entry must include physics parameters (mass_kg, damping, restitution) and interaction parameters (grab_range_m, melee/throw base damage, throw impulse scale)."
+    created: 2026-04-10
+    revised: ""
+    status: active
+
+  - id: TR-catalogue-objets-003
+    system: catalogue-objets
+    gdd: design/gdd/catalogue-objets.md
+    requirement: "Object destruction is multi-stage; stage transitions are driven by cumulative damage thresholds and/or uses_until_break per stage."
+    created: 2026-04-10
+    revised: ""
+    status: active
+
+  - id: TR-catalogue-objets-004
+    system: catalogue-objets
+    gdd: design/gdd/catalogue-objets.md
+    requirement: "DestructionTracker reads catalogue once at _ready() and updates stage/mesh on receive_damage(amount) and register_use()."
+    created: 2026-04-10
+    revised: ""
+    status: active
+
+  # --- S06: systeme-degats ---
+  - id: TR-systeme-degats-001
+    system: systeme-degats
+    gdd: design/gdd/systeme-degats.md
+    requirement: "Damage system is a pure, stateless function (no node, no signals, no persisted state)."
+    created: 2026-04-10
+    revised: ""
+    status: active
+
+  - id: TR-systeme-degats-002
+    system: systeme-degats
+    gdd: design/gdd/systeme-degats.md
+    requirement: "Signature is calculate(damage_base: int, stage_mult: float, damage_type: DamageType) -> int; S06 never reads S05 directly."
+    created: 2026-04-10
+    revised: ""
+    status: active
+
+  - id: TR-systeme-degats-003
+    system: systeme-degats
+    gdd: design/gdd/systeme-degats.md
+    requirement: "Formula is final_damage = max(1, floori(damage_base * stage_mult)); roundi is prohibited."
+    created: 2026-04-10
+    revised: ""
+    status: active
+
+  - id: TR-systeme-degats-004
+    system: systeme-degats
+    gdd: design/gdd/systeme-degats.md
+    requirement: "DamageType enum includes MELEE, THROW, ENEMY_MELEE; it does not change the math (used for feedback routing)."
+    created: 2026-04-10
+    revised: ""
+    status: active
+
+  # --- S07: sante-joueur ---
+  - id: TR-sante-joueur-001
+    system: sante-joueur
+    gdd: design/gdd/sante-joueur.md
+    requirement: "Player health exposes receive_damage(amount: int, type: DamageType) and does not recalculate damage."
+    created: 2026-04-10
+    revised: ""
+    status: active
+
+  - id: TR-sante-joueur-002
+    system: sante-joueur
+    gdd: design/gdd/sante-joueur.md
+    requirement: "Player health enforces i-frames (I_FRAME_DURATION = 0.5s); damage during the window is ignored."
+    created: 2026-04-10
+    revised: ""
+    status: active
+
+  - id: TR-sante-joueur-003
+    system: sante-joueur
+    gdd: design/gdd/sante-joueur.md
+    requirement: "On valid damage, emit player_hp_changed and player_hit; on reaching 0 HP emit player_died exactly once and ignore further damage."
+    created: 2026-04-10
+    revised: ""
+    status: active
+
+  # --- S08: sante-ennemie ---
+  - id: TR-sante-ennemie-001
+    system: sante-ennemie
+    gdd: design/gdd/sante-ennemie.md
+    requirement: "Enemy health exposes receive_damage(amount: int, type: DamageType) and processes every hit immediately (no i-frames)."
+    created: 2026-04-10
+    revised: ""
+    status: active
+
+  - id: TR-sante-ennemie-002
+    system: sante-ennemie
+    gdd: design/gdd/sante-ennemie.md
+    requirement: "On valid damage, emit enemy_hit(damage, type, current_hp) for feedback; never shows HP bar in MVP."
+    created: 2026-04-10
+    revised: ""
+    status: active
+
+  - id: TR-sante-ennemie-003
+    system: sante-ennemie
+    gdd: design/gdd/sante-ennemie.md
+    requirement: "On reaching 0 HP, emit enemy_died(enemy: Node) exactly once, then queue_free the enemy instance."
+    created: 2026-04-10
+    revised: ""
+    status: active
+
+  # --- S09: ia-ennemie ---
+  - id: TR-ia-ennemie-001
+    system: ia-ennemie
+    gdd: design/gdd/ia-ennemie.md
+    requirement: "Enemy scene root is CharacterBody3D (layer 4); contains EnemyHealth (S08) and NavigationAgent3D; movement uses move_and_slide()."
+    created: 2026-04-10
+    revised: ""
+    status: active
+
+  - id: TR-ia-ennemie-002
+    system: ia-ennemie
+    gdd: design/gdd/ia-ennemie.md
+    requirement: "Spawner injects dependencies via @export (player, wave_manager, score_manager, vfx_manager) before add_child(); _ready wires signals."
+    created: 2026-04-10
+    revised: ""
+    status: active
+
+  - id: TR-ia-ennemie-003
+    system: ia-ennemie
+    gdd: design/gdd/ia-ennemie.md
+    requirement: "Navigation targets player.global_position via NavigationAgent3D; navmesh uses static geometry only (RigidBody3D are not nav obstacles)."
+    created: 2026-04-10
+    revised: ""
+    status: active
+
+  - id: TR-ia-ennemie-004
+    system: ia-ennemie
+    gdd: design/gdd/ia-ennemie.md
+    requirement: "If navigation is stuck for >0.5s, enemy falls back to straight-line movement toward player and retries pathfinding every 0.5s until recovered."
+    created: 2026-04-10
+    revised: ""
+    status: active
+
+  # --- S10: camera-tps ---
+  - id: TR-camera-tps-001
+    system: camera-tps
+    gdd: design/gdd/camera-tps.md
+    requirement: "Camera uses a player-child pivot Node3D with a SpringArm3D to avoid wall clipping; default distance 4.0m and pivot height 1.2m."
+    created: 2026-04-10
+    revised: ""
+    status: active
+
+  - id: TR-camera-tps-002
+    system: camera-tps
+    gdd: design/gdd/camera-tps.md
+    requirement: "Yaw is fully player-controlled with no auto-recenter; pitch is clamped (default −25°/+40°); FOV is fixed (default 75°)."
+    created: 2026-04-10
+    revised: ""
+    status: active
+
+  - id: TR-camera-tps-003
+    system: camera-tps
+    gdd: design/gdd/camera-tps.md
+    requirement: "S10 emits camera_yaw_changed(yaw: float) every frame (including unchanged) and once at _ready(); S01 depends on it for movement orientation."
+    created: 2026-04-10
+    revised: ""
+    status: active
+
+  - id: TR-camera-tps-004
+    system: camera-tps
+    gdd: design/gdd/camera-tps.md
+    requirement: "Camera supports freeze()/unfreeze() and freezes immediately on player_died; coupling is one-way S11→S10."
+    created: 2026-04-10
+    revised: ""
+    status: active
+
+  # --- S03: vagues-ennemis ---
+  - id: TR-vagues-ennemis-001
+    system: vagues-ennemis
+    gdd: design/gdd/vagues-ennemis.md
+    requirement: "Three waves are statically defined for MVP: sizes [3, 5, 7] with basic enemies (HP=12)."
+    created: 2026-04-10
+    revised: ""
+    status: active
+
+  - id: TR-vagues-ennemis-002
+    system: vagues-ennemis
+    gdd: design/gdd/vagues-ennemis.md
+    requirement: "WaveManager spawns enemies from SpawnPoint nodes with SPAWN_INTERVAL = 0.5s between spawns; dependencies are injected before add_child()."
+    created: 2026-04-10
+    revised: ""
+    status: active
+
+  - id: TR-vagues-ennemis-003
+    system: vagues-ennemis
+    gdd: design/gdd/vagues-ennemis.md
+    requirement: "WaveManager tracks enemies_alive; decrements on enemy_died; emits wave_cleared and all_waves_complete based on enemies_alive reaching 0."
+    created: 2026-04-10
+    revised: ""
+    status: active
+
+  - id: TR-vagues-ennemis-004
+    system: vagues-ennemis
+    gdd: design/gdd/vagues-ennemis.md
+    requirement: "Spawning starts only when game_state_changed(COMBAT) is received from S11; one wave per COMBAT transition; no intra-wave respawn."
+    created: 2026-04-10
+    revised: ""
+    status: active
+
+  # --- S11: gestionnaire-etat ---
+  - id: TR-gestionnaire-etat-001
+    system: gestionnaire-etat
+    gdd: design/gdd/gestionnaire-etat.md
+    requirement: "S11 is the only authority for current_state (GameState enum) and publishes game_state_changed(new_state) for other systems."
+    created: 2026-04-10
+    revised: ""
+    status: active
+
+  - id: TR-gestionnaire-etat-002
+    system: gestionnaire-etat
+    gdd: design/gdd/gestionnaire-etat.md
+    requirement: "S11 transitions using signals from S03 (wave_started/wave_cleared/all_waves_complete) and S07 (player_died) across PRE_WAVE/COMBAT/POST_WAVE/GAME_OVER/VICTORY."
+    created: 2026-04-10
+    revised: ""
+    status: active
+
+  - id: TR-gestionnaire-etat-003
+    system: gestionnaire-etat
+    gdd: design/gdd/gestionnaire-etat.md
+    requirement: "On player_died, S11 emits GAME_OVER, calls S10.freeze() in the same frame, and triggers retry after RETRY_DELAY ≤ 3s (delegated to S12)."
+    created: 2026-04-10
+    revised: ""
+    status: active
+
+  - id: TR-gestionnaire-etat-004
+    system: gestionnaire-etat
+    gdd: design/gdd/gestionnaire-etat.md
+    requirement: "S11 contains no gameplay logic (no damage, no spawn); it only orchestrates state transitions and calls (freeze/retry)."
+    created: 2026-04-10
+    revised: ""
+    status: active
+
+  # --- S12: retry-reinitialisation ---
+  - id: TR-retry-reinitialisation-001
+    system: retry-reinitialisation
+    gdd: design/gdd/retry-reinitialisation.md
+    requirement: "Retry system exposes a single public method retry() that calls SceneTree.reload_current_scene()."
+    created: 2026-04-10
+    revised: ""
+    status: active
+
+  - id: TR-retry-reinitialisation-002
+    system: retry-reinitialisation
+    gdd: design/gdd/retry-reinitialisation.md
+    requirement: "Retry is triggered exclusively by S11 after RETRY_DELAY in GAME_OVER; S12 never self-triggers."
+    created: 2026-04-10
+    revised: ""
+    status: active
+
+  - id: TR-retry-reinitialisation-003
+    system: retry-reinitialisation
+    gdd: design/gdd/retry-reinitialisation.md
+    requirement: "Total retry time (RETRY_DELAY + scene_reload_time) must be ≤ 3.0s; no visual transition in MVP."
+    created: 2026-04-10
+    revised: ""
+    status: active
+
+  # --- S13: hud ---
+  - id: TR-hud-001
+    system: hud
+    gdd: design/gdd/hud.md
+    requirement: "HUD is a CanvasLayer independent of the 3D camera and is read-only on game systems (consumes signals; minimal outbound: retry_requested)."
+    created: 2026-04-10
+    revised: ""
+    status: active
+
+  - id: TR-hud-002
+    system: hud
+    gdd: design/gdd/hud.md
+    requirement: "HUD subscribes to player_hp_changed/player_hit (S07), wave_started (S03), and GrabSystem signals (ADR-0001) to drive HP bar, wave counter, and held-object silhouette."
+    created: 2026-04-10
+    revised: ""
+    status: active
+
+  - id: TR-hud-003
+    system: hud
+    gdd: design/gdd/hud.md
+    requirement: "HP bar updates fill ratio immediately (no tween on width); hit flash uses a 440ms tween sequence and restarts on overlapping hits."
+    created: 2026-04-10
+    revised: ""
+    status: active
+
+  - id: TR-hud-004
+    system: hud
+    gdd: design/gdd/hud.md
+    requirement: "HUD emits retry_requested() only in GAME_OVER and routes it to S11 to initiate retry flow."
+    created: 2026-04-10
+    revised: ""
+    status: active
 
 # --- EXAMPLE ENTRIES (remove when first real entries are added) ---
 #

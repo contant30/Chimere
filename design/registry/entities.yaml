@@ -37,7 +37,7 @@
 #   Each entry: name, status, source, referenced_by[], attributes{}, added, revised
 
 version: 1
-last_updated: "2026-04-08"
+last_updated: "2026-04-10"
 
 # ─── ENTITIES ────────────────────────────────────────────────────────────────
 
@@ -167,4 +167,39 @@ constants:
       Flagged for validation at prototype. Resolution: either raise S06 safe floor advisory
       to acknowledge intended sub-0.75 values, or adjust S05 stade values upward."
     added: 2026-04-08
+    revised: ""
+
+  - name: HP_JOUEUR_MAX
+    status: active
+    source: design/gdd/sante-joueur.md
+    referenced_by:
+      - design/gdd/sante-joueur.md
+      - design/gdd/hud.md  # S13 fill_ratio denominator comes via player_hp_changed signal (max_hp param)
+    value: 20
+    unit: HP
+    notes: "Maximum and initial HP for the player character. S07 initialises current_hp to
+      this value at session start and on reset(). S13 receives max_hp via player_hp_changed
+      signal parameter — it does not hard-code 20, but the calibration of HP_BAR_WIDTH and
+      HP_LOW_THRESHOLD assumes this value. Safe range per S07: [12, 30]. Below 12: a single
+      heavy object one-shots the player (KILL_FEEL_MAX incompatible). Above 30: combat
+      duration breaks flow. If changed: update HP_LOW_THRESHOLD to maintain ≤ 30% ratio,
+      and re-verify S06 kill-feel calibration examples."
+    added: 2026-04-10
+    revised: ""
+
+  - name: HP_LOW_THRESHOLD
+    status: active
+    source: design/gdd/sante-joueur.md
+    referenced_by:
+      - design/gdd/sante-joueur.md   # defines and owns the value; drives is_low_hp formula
+      - design/gdd/hud.md            # S13 uses it to trigger ALERT state, orange color, pulse
+    value: 6
+    unit: HP
+    notes: "Threshold at which low-HP feedback activates. Equals ≈30% of HP_JOUEUR_MAX=20.
+      S07 uses it to compute is_low_hp and emit player_hit with context. S13 uses it to
+      switch HP bar colour to orange alert and start the 800ms pulse animation. Safe ranges
+      differ slightly between GDDs (S07: [4,8]; S13: [1,10]) — effective safe range is the
+      intersection: [4, 8]. MUST remain ≤ 30% of HP_JOUEUR_MAX. If HP_JOUEUR_MAX changes,
+      recalculate this value and update both S07 and S13 Tuning Knobs simultaneously."
+    added: 2026-04-10
     revised: ""
