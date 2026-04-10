@@ -4,7 +4,7 @@
 
 ## Tâche actuelle
 
-GDD S08 — Santé ennemie en cours.
+GDD S12 terminé (In Review). Prochain : S13 — HUD.
 
 ## Progression
 
@@ -16,14 +16,20 @@ GDD S08 — Santé ennemie en cours.
 - [x] Entity registry (`design/registry/entities.yaml`) — peuplé : 1 formule, 5 constantes
 - [x] S02 — Saisie et lancer (`design/gdd/saisie-lancer.md`) — In Review, 11 ACs, 9 tuning knobs, OQ-05 ADR blocker
 - [x] S07 — Santé joueur (`design/gdd/sante-joueur.md`) — In Review, 9 ACs, HP_JOUEUR_MAX=20, I-frames=0.5s, 3 tuning knobs
+- [x] S08 — Santé ennemie (`design/gdd/sante-ennemie.md`) — In Review, 8 ACs, HP_ennemi_basique=12, pas d'I-frames, 2 tuning knobs
+- [x] S09 — IA ennemie (`design/gdd/ia-ennemie.md`) — In Review, 9 ACs, ENEMY_MOVE_SPEED=2.5, STOPPING_DISTANCE=0.8, STUCK fallback, 6 tuning knobs, 3 OQs
+- [x] S10 — Caméra TPS (`design/gdd/camera-tps.md`) — In Review, 9 ACs, CAMERA_DISTANCE=4.0m, PITCH_MIN=−25°/MAX=+40°, SpringArm3D, 7 tuning knobs, 2 OQs
+- [x] S03 — Vagues d'ennemis (`design/gdd/vagues-ennemis.md`) — In Review, 7 ACs, WAVE_SIZES=[3,5,7], INTER_WAVE_DELAY=3s, SPAWN_INTERVAL=0.5s, 3 knobs, 2 OQs
+- [x] S11 — Gestionnaire d'état (`design/gdd/gestionnaire-etat.md`) — In Review, 8 ACs, FSM 5 états, RETRY_DELAY=2s, contrat signaux S03↔S11 validé, 2 knobs, 2 OQs
+- [x] S12 — Retry / réinitialisation (`design/gdd/retry-reinitialisation.md`) — In Review, 7 ACs, reload_current_scene(), budget scene_reload_time ≤ 1s, 2 OQs
 
 ## Section actuelle
 
-Overview (A) — en cours
+Terminé
 
 ## Fichiers en cours
 
-design/gdd/sante-ennemie.md
+—
 
 ## Décisions clés
 
