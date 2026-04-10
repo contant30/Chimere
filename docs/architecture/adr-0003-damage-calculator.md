@@ -1,7 +1,7 @@
 # ADR-0003 : DamageCalculator — Patron static func
 
 ## Status
-Proposed
+Accepted
 
 ## Date
 2026-04-10
@@ -37,8 +37,8 @@ une classe nommée, Autoload, ou inline dans chaque appelant ?
 
 ### Constraints
 - GDScript uniquement (pas de C# ni GDExtension)
-- La fonction doit être testable en isolation (coding standards : all public methods
-  must be unit-testable via dependency injection — ici, appel direct sans scène)
+- La fonction doit être testable en isolation (coding standards : toutes les methodes
+  publiques doivent etre testables en unitaire via injection de dependances — ici, appel direct sans scene)
 - Deux appelants connus à ce stade : S02 (Saisie et lancer) et S09 (IA ennemie)
 - DamageType enum doit être accessible aux appelants sans instanciation
 
@@ -122,7 +122,7 @@ static func calculate(
 - **Cons** : Instancie un `Node` au démarrage du projet pour une fonction qui n'a
   pas d'état. Crée une dépendance implicite (tout script peut appeler
   `DamageCalculator.calculate()` sans que la dépendance soit déclarée).
-- **Rejection Reason** : `static func` dans une `class_name` offre le même accès
+- **Raison du rejet** : `static func` dans une `class_name` offre le meme acces
   global sans le coût d'un nœud instancié. Les Autoloads sont réservés aux
   systèmes avec état (SceneManager, AudioBus, etc.).
 
@@ -132,7 +132,7 @@ static func calculate(
 - **Pros** : Zéro dépendance externe ; lisible isolément
 - **Cons** : Duplique la logique — si la formule change (ex. ajout d'un cap en V1.0),
   deux fichiers doivent être modifiés simultanément. Brise le principe de S06 Règle 1.
-- **Rejection Reason** : S06 GDD Règle 1 exige explicitement une centralisation :
+- **Raison du rejet** : S06 GDD Regle 1 exige explicitement une centralisation :
   "si le calibrage doit changer, la formule est le point d'entrée unique."
 
 ## Consequences
@@ -164,7 +164,7 @@ static func calculate(
 
 ## GDD Requirements Addressed
 
-| GDD System | Requirement | How This ADR Addresses It |
+| Systeme GDD | Exigence | Comment cet ADR la satisfait |
 |------------|-------------|--------------------------|
 | systeme-degats.md | Règle 1 : fonction pure stateless, pas un nœud, pas de signaux | `static func` sans état ni nœud |
 | systeme-degats.md | Règle 1 : `class_name DamageCalculator avec static func` suggéré | Implémente exactement le patron suggéré |

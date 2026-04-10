@@ -48,7 +48,238 @@ entities: []
 # They will be promoted to cross-system items when S02 or S04 GDDs reference
 # specific values (e.g. chaise.melee_damage_base, bouteille.throw_damage_base).
 
-items: []
+items:
+  - name: chaise
+    status: active
+    source: design/gdd/catalogue-objets.md
+    referenced_by:
+      - design/gdd/catalogue-objets.md
+      - design/gdd/saisie-lancer.md
+      - design/gdd/degradation-environnement.md
+    attributes:
+      mass_kg: 6.0
+      melee_damage_base: 7
+      throw_damage_base: 10
+      throw_impulse_scale: 0.45
+      stage_mesh_paths:
+        - chaise_stage_0.mesh
+        - chaise_stage_1.mesh
+        - chaise_stage_2.mesh
+      debris_scene: chaise_debris.tscn
+      destruction_stages:
+        - stage: 0
+          melee_dmg_mult: 1.0
+          throw_dmg_mult: 1.0
+          damage_threshold: 0
+          uses_until_break: 4
+          is_final_stage: false
+        - stage: 1
+          melee_dmg_mult: 0.9
+          throw_dmg_mult: 1.0
+          damage_threshold: 12
+          uses_until_break: 3
+          is_final_stage: false
+        - stage: 2
+          melee_dmg_mult: 0.7
+          throw_dmg_mult: 0.8
+          damage_threshold: 25
+          uses_until_break: -1
+          is_final_stage: true
+    added: 2026-04-10
+    revised: ""
+
+  - name: bouteille
+    status: active
+    source: design/gdd/catalogue-objets.md
+    referenced_by:
+      - design/gdd/catalogue-objets.md
+      - design/gdd/saisie-lancer.md
+      - design/gdd/degradation-environnement.md
+    attributes:
+      mass_kg: 0.8
+      melee_damage_base: 2
+      throw_damage_base: 8
+      throw_impulse_scale: 1.3
+      stage_mesh_paths:
+        - bouteille_stage_0.mesh
+        - bouteille_stage_1.mesh
+      debris_scene: bouteille_debris.tscn
+      destruction_stages:
+        - stage: 0
+          melee_dmg_mult: 1.0
+          throw_dmg_mult: 1.0
+          damage_threshold: 0
+          uses_until_break: 2
+          is_final_stage: false
+        - stage: 1
+          melee_dmg_mult: 0.8
+          throw_dmg_mult: 1.5
+          damage_threshold: 5
+          uses_until_break: -1
+          is_final_stage: true
+    added: 2026-04-10
+    revised: ""
+
+  - name: lampe_bureau
+    status: active
+    source: design/gdd/catalogue-objets.md
+    referenced_by:
+      - design/gdd/catalogue-objets.md
+      - design/gdd/saisie-lancer.md
+      - design/gdd/degradation-environnement.md
+    attributes:
+      mass_kg: 1.5
+      melee_damage_base: 4
+      throw_damage_base: 6
+      throw_impulse_scale: 1.0
+      stage_mesh_paths:
+        - lampe_bureau_stage_0.mesh
+        - lampe_bureau_stage_1.mesh
+        - lampe_bureau_stage_2.mesh
+      debris_scene: lampe_bureau_debris.tscn
+      destruction_stages:
+        - stage: 0
+          melee_dmg_mult: 1.0
+          throw_dmg_mult: 1.0
+          damage_threshold: 0
+          uses_until_break: 4
+          is_final_stage: false
+        - stage: 1
+          melee_dmg_mult: 1.1
+          throw_dmg_mult: 0.9
+          damage_threshold: 10
+          uses_until_break: 3
+          is_final_stage: false
+        - stage: 2
+          melee_dmg_mult: 0.6
+          throw_dmg_mult: 0.7
+          damage_threshold: 22
+          uses_until_break: -1
+          is_final_stage: true
+    added: 2026-04-10
+    revised: ""
+
+  - name: livre
+    status: active
+    source: design/gdd/catalogue-objets.md
+    referenced_by:
+      - design/gdd/catalogue-objets.md
+      - design/gdd/saisie-lancer.md
+      - design/gdd/degradation-environnement.md
+    attributes:
+      mass_kg: 0.4
+      melee_damage_base: 1
+      throw_damage_base: 4
+      throw_impulse_scale: 1.6
+      stage_mesh_paths:
+        - livre_stage_0.mesh
+        - livre_stage_1.mesh
+      debris_scene: livre_debris.tscn
+      destruction_stages:
+        - stage: 0
+          melee_dmg_mult: 1.0
+          throw_dmg_mult: 1.0
+          damage_threshold: 0
+          uses_until_break: -1
+          is_final_stage: false
+        - stage: 1
+          melee_dmg_mult: 0.8
+          throw_dmg_mult: 0.7
+          damage_threshold: 8
+          uses_until_break: -1
+          is_final_stage: true
+    added: 2026-04-10
+    revised: ""
+
+  - name: moniteur
+    status: active
+    source: design/gdd/catalogue-objets.md
+    referenced_by:
+      - design/gdd/catalogue-objets.md
+      - design/gdd/saisie-lancer.md
+      - design/gdd/degradation-environnement.md
+    attributes:
+      mass_kg: 5.0
+      melee_damage_base: 6
+      throw_damage_base: 9
+      throw_impulse_scale: 0.55
+      stage_mesh_paths:
+        - moniteur_stage_0.mesh
+        - moniteur_stage_1.mesh
+      debris_scene: moniteur_debris.tscn
+      destruction_stages:
+        - stage: 0
+          melee_dmg_mult: 1.0
+          throw_dmg_mult: 1.0
+          damage_threshold: 0
+          uses_until_break: 2
+          is_final_stage: false
+        - stage: 1
+          melee_dmg_mult: 1.2
+          throw_dmg_mult: 0.6
+          damage_threshold: 15
+          uses_until_break: -1
+          is_final_stage: true
+    added: 2026-04-10
+    revised: ""
+
+  - name: ordinateur_portable
+    status: active
+    source: design/gdd/catalogue-objets.md
+    referenced_by:
+      - design/gdd/catalogue-objets.md
+      - design/gdd/saisie-lancer.md
+      - design/gdd/degradation-environnement.md
+    attributes:
+      mass_kg: 2.0
+      melee_damage_base: 4
+      throw_damage_base: 6
+      throw_impulse_scale: 0.85
+      stage_mesh_paths:
+        - ordinateur_portable_stage_0.mesh
+        - ordinateur_portable_stage_1.mesh
+      debris_scene: ordinateur_portable_debris.tscn
+      destruction_stages:
+        - stage: 0
+          melee_dmg_mult: 1.0
+          throw_dmg_mult: 1.0
+          damage_threshold: 0
+          uses_until_break: 3
+          is_final_stage: false
+        - stage: 1
+          melee_dmg_mult: 0.9
+          throw_dmg_mult: 0.8
+          damage_threshold: 12
+          uses_until_break: -1
+          is_final_stage: true
+    added: 2026-04-10
+    revised: ""
+
+  - name: mug_cafe
+    status: active
+    source: design/gdd/catalogue-objets.md
+    referenced_by:
+      - design/gdd/catalogue-objets.md
+      - design/gdd/saisie-lancer.md
+      - design/gdd/degradation-environnement.md
+    attributes:
+      mass_kg: 0.3
+      melee_damage_base: 1
+      throw_damage_base: 3
+      throw_impulse_scale: 1.8
+      stage_mesh_paths:
+        - mug_cafe_stage_0.mesh
+      debris_scene: mug_cafe_debris.tscn
+      can_damage_when_broken: false
+      destruction_stages:
+        - stage: 0
+          melee_dmg_mult: 1.0
+          throw_dmg_mult: 1.0
+          damage_threshold: 0
+          uses_until_break: 1
+          is_final_stage: true
+    added: 2026-04-10
+    revised: ""
 
 # ─── FORMULAS ────────────────────────────────────────────────────────────────
 

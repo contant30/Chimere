@@ -1,13 +1,13 @@
 # S11 — Gestionnaire d'état de jeu
 
-> **Statut**: In Review
+> **Statut**: Approuvé
 > **Auteur**: ROM.CONTANT + agents
 > **Dernière mise à jour**: 2026-04-10
 > **Implémente le Pilier**: Pilier 2 — Le flow avant le challenge
 
 ## Overview
 
-S11 — Gestionnaire d'état de jeu est la FSM centrale qui orchestre le déroulement d'une partie : il reçoit les événements de S03 (vagues) et S07 (santé joueur), et émet `game_state_changed(new_state: GameState)` vers tous les systèmes qui ont besoin de connaître l'état courant. Sa FSM comporte cinq états : PRE_WAVE (avant le premier spawn), COMBAT (vague active), POST_WAVE (délai entre vagues), GAME_OVER (joueur mort) et VICTORY (3 vagues survivées). S11 est aussi le coordinateur des effets de transition : sur GAME_OVER, il appelle `freeze()` sur S10 (caméra), et orchestre le retry en moins de 3 secondes (Pilier 2). Pour le joueur, S11 est totalement invisible — il ne ressent que ses effets : le fait que les ennemis arrivent au bon moment, que la mort déclenche un retry rapide, que la victoire est bien reconnue. S11 est le chef d'orchestre silencieux qui fait tenir ensemble tous les autres systèmes.
+S11 — Gestionnaire d'état de jeu est la FSM centrale qui orchestre le déroulement d'une partie : il reçoit les événements de S03 (vagues) et S07 (santé joueur), et émet `game_state_changed(new_state: GameState)` vers tous les systèmes qui ont besoin de connaître l'état courant. Sa FSM comporte cinq états : PRE_WAVE (avant le premier spawn), COMBAT (vague active), POST_WAVE (délai entre vagues), GAME_OVER (joueur mort) et VICTORY (3 vagues survivées). S11 est aussi le coordinateur des effets de transition : sur GAME_OVER, il appelle `freeze()` sur S10 (caméra), et orchestre le retry en moins de 3 secondes (Pilier 2). Pendant GAME_OVER, S11 peut aussi recevoir `retry_requested()` depuis S13 (HUD) pour déclencher un retry immédiat ; à défaut d'input, il déclenche un auto-retry après `RETRY_DELAY`. Pour le joueur, S11 est totalement invisible — il ne ressent que ses effets : le fait que les ennemis arrivent au bon moment, que la mort déclenche un retry rapide, que la victoire est bien reconnue. S11 est le chef d'orchestre silencieux qui fait tenir ensemble tous les autres systèmes.
 
 ## Player Fantasy
 
@@ -29,13 +29,15 @@ Le joueur est le soliste. Il improvise, il enchaîne, il s'exprime. Mais derriè
 
 5. **POST_WAVE → COMBAT** : S11 écoute `wave_started(wave_number)` de S03. Sur réception → émet `game_state_changed(COMBAT)`.
 
-6. **COMBAT → GAME_OVER** : S11 écoute `player_died()` de S07. Sur réception, quelle que soit la vague en cours → émet `game_state_changed(GAME_OVER)` → appelle `freeze()` sur S10 → déclenche le retry après `RETRY_DELAY` (≤ 3 s, Pilier 2). La réinitialisation est déléguée à S12.
+6. **COMBAT → GAME_OVER** : S11 écoute `player_died()` de S07. Sur réception, quelle que soit la vague en cours → émet `game_state_changed(GAME_OVER)` → appelle `freeze()` sur S10 → planifie un auto-retry après `RETRY_DELAY` (≤ 3 s, Pilier 2) via S12. La réinitialisation est déléguée à S12.
 
 7. **POST_WAVE → GAME_OVER** : `player_died` pendant POST_WAVE déclenche GAME_OVER immédiatement — la prochaine vague ne démarre pas.
 
 8. **→ VICTORY** : S11 écoute `all_waves_complete()` de S03. Sur réception → émet `game_state_changed(VICTORY)`. VICTORY est un état terminal en MVP (pas de suite de niveaux).
 
-9. **Aucune logique de gameplay** : S11 orchestre des transitions d'état et des appels d'API (`freeze()`, retry). Il ne calcule pas de dégâts, ne spawne pas d'ennemis, ne gère pas la caméra au-delà des appels freeze/unfreeze.
+9. **Aucune logique de gameplay** : S11 orchestre des transitions d'état et des appels d'API (`freeze()`, retry). Il ne calcule pas de dégâts, ne spawne pas d'ennemis, ne gère pas la caméra au-delà de l'appel `freeze()` (en MVP, l'unfreeze est implicite via le reload S12).
+
+10. **Retry demandé par le HUD** : pendant GAME_OVER uniquement, S11 écoute `retry_requested()` de S13. Sur réception → déclenche le retry immédiatement via S12 (sans attendre `RETRY_DELAY`) et annule toute minuterie d'auto-retry encore active.
 
 ### States and Transitions
 
@@ -44,7 +46,7 @@ Le joueur est le soliste. Il improvise, il enchaîne, il s'exprime. Mais derriè
 | `PRE_WAVE` | Pause initiale avant la première vague | `_ready()` | → `COMBAT` après délai initial |
 | `COMBAT` | Vague active, ennemis en jeu | PRE_WAVE terminé · `wave_started` de S03 | → `POST_WAVE` sur `wave_cleared` · → `GAME_OVER` sur `player_died` |
 | `POST_WAVE` | Délai inter-vague (géré par S03) | `wave_cleared` de S03 | → `COMBAT` sur `wave_started` · → `GAME_OVER` sur `player_died` |
-| `GAME_OVER` | Joueur mort — retry en cours | `player_died` de S07 | → `PRE_WAVE` après `RETRY_DELAY` (via S12) |
+| `GAME_OVER` | Joueur mort — retry en cours | `player_died` de S07 | → rechargement de scène via S12 (auto après `RETRY_DELAY` ou immédiat sur `retry_requested`) ; nouvelle instance repart en `PRE_WAVE` |
 | `VICTORY` | 3 vagues survivées | `all_waves_complete` de S03 | → aucune (terminal en MVP) |
 
 ### Interactions with Other Systems
@@ -54,9 +56,10 @@ Le joueur est le soliste. Il improvise, il enchaîne, il s'exprime. Mais derriè
 | S03 — Vagues d'ennemis | S03 → S11 | `wave_started`, `wave_cleared`, `all_waves_complete` |
 | S03 — Vagues d'ennemis | S11 → S03 | `game_state_changed` → S03 démarre le spawn sur `COMBAT` |
 | S07 — Santé joueur | S07 → S11 | `player_died()` → transition GAME_OVER |
-| S10 — Caméra TPS | S11 → S10 | `freeze()` sur GAME_OVER · `unfreeze()` après retry |
-| S12 — Retry / réinitialisation | S11 → S12 | Déclenche la réinitialisation après `RETRY_DELAY` |
+| S10 — Caméra TPS | S11 → S10 | `freeze()` sur GAME_OVER (unfreeze implicite via reload S12 en MVP) |
+| S12 — Retry / réinitialisation | S11 → S12 | Appel direct `S12.retry()` (auto après `RETRY_DELAY` ou immédiat sur `retry_requested`) |
 | S13 — HUD | S11 → S13 | `game_state_changed` → S13 met à jour les affichages d'état |
+| S13 — HUD | S13 → S11 | `retry_requested()` (uniquement en GAME_OVER) |
 
 ## Formulas
 
@@ -82,7 +85,7 @@ Ignoré. S11 bloque tout input externe quand il est en GAME_OVER.
 Transition GAME_OVER immédiate, même avant la première vague. Comportement extrême (joueur tué avant le premier spawn) — possible si la scène est mal configurée.
 
 **EC-05 — Retry échoue (S12 ne répond pas dans RETRY_DELAY)**
-Open question — à résoudre au prototype S12. En MVP, S11 attend `RETRY_DELAY` et déclenche la réinitialisation sans vérification de réponse.
+S12 n'émet pas de signal de succès/échec en MVP : il déclenche un `reload_current_scene()` et la scène repart. Si le temps de reload dépasse le budget (voir S12 EC-01), c'est un problème de performance/poids de scène (pas un problème de logique S11). Aucun fallback en MVP.
 
 ## Dependencies
 
@@ -98,7 +101,7 @@ Open question — à résoudre au prototype S12. En MVP, S11 attend `RETRY_DELAY
 | Système | Ce que S11 fournit |
 |---------|--------------------|
 | S03 — Vagues d'ennemis | Signal `game_state_changed` → S03 démarre le spawn sur COMBAT |
-| S10 — Caméra TPS | Appels `freeze()` / `unfreeze()` |
+| S10 — Caméra TPS | Appel `freeze()` sur GAME_OVER (reset implicite via reload S12 en MVP) |
 | S12 — Retry / réinitialisation | Déclenchement de la réinitialisation après RETRY_DELAY |
 | S13 — HUD | Signal `game_state_changed` → S13 met à jour les affichages |
 
@@ -117,8 +120,8 @@ Open question — à résoudre au prototype S12. En MVP, S11 attend `RETRY_DELAY
 
 ## UI Requirements
 
-- **Aucune UI propre à S11** : toutes les informations d'état sont communiquées via `game_state_changed` → S13 (HUD) gère l'affichage (écran de game-over, écran de victoire, transitions).
-- **Écran GAME_OVER / VICTORY** : spécifiés dans le GDD S13 / UX Options. Hors scope S11.
+- **Aucune UI propre à S11** : toutes les informations d'état sont communiquées via `game_state_changed` → S13 (HUD) gère l'affichage (notamment l'écran de game-over).
+- **Écran GAME_OVER** : spécifié dans le GDD S13. **VICTORY** : pas d'écran dédié en MVP (no-op côté HUD) ; V1.0 pourra ajouter un écran/feedback.
 
 ## Acceptance Criteria
 
@@ -138,8 +141,10 @@ Open question — à résoudre au prototype S12. En MVP, S11 attend `RETRY_DELAY
 
 **AC-08** — S11 n'expose aucune méthode publique de changement d'état — la FSM ne peut être pilotée que par les signaux entrants.
 
+**AC-09** — Pendant GAME_OVER, à réception de `retry_requested()` de S13, S11 déclenche le retry via S12 dans la même frame (sans attendre `RETRY_DELAY`).
+
 ## Open Questions
 
-**OQ-01** — Interface S11 → S12 pour le retry : appel direct de méthode (`scene_tree.reload_current_scene()`, ou méthode sur S12) ? À décider au prototype S12.
+**OQ-01** — (Résolu) Interface S11 → S12 pour le retry : appel direct `S12.retry()` via une référence `@export` vérifiée en `_ready()` (MVP).
 
 **OQ-02** — PRE_WAVE_DELAY à 0s : en MVP, pas de délai initial. Si un écran d'intro est ajouté, PRE_WAVE_DELAY devient le budget de cet écran — à décider au design UX.

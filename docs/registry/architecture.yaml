@@ -43,7 +43,45 @@ last_updated: "2026-04-10"  # ADR-0003 added: damage_calculator stances; carry_i
 # interface: how other systems access this state (read-only property, method call,
 #   signal, shared resource, etc.) — this is the contract other ADRs depend on.
 
-state_ownership: []
+state_ownership:
+  - state: game_state
+    status: active
+    owner_system: game-state-system
+    adr: docs/architecture/adr-0011-game-state-fsm.md
+    interface: "signal game_state_changed(new_state: GameState)"
+    write_access: game-state-system-only
+    referenced_by:
+      - docs/architecture/adr-0011-game-state-fsm.md
+      - docs/architecture/adr-0010-wave-manager.md
+      - docs/architecture/adr-0013-hud-architecture.md
+    added: 2026-04-10
+    revised: ""
+
+  - state: player_current_hp
+    status: active
+    owner_system: player-health-system
+    adr: docs/architecture/adr-0008-health-contracts.md
+    interface: "signals player_hp_changed/player_hit/player_died"
+    write_access: player-health-system-only
+    referenced_by:
+      - docs/architecture/adr-0008-health-contracts.md
+      - docs/architecture/adr-0013-hud-architecture.md
+      - docs/architecture/adr-0011-game-state-fsm.md
+    added: 2026-04-10
+    revised: ""
+
+  - state: enemies_alive
+    status: active
+    owner_system: wave-manager
+    adr: docs/architecture/adr-0010-wave-manager.md
+    interface: "signals wave_started/wave_cleared/all_waves_complete"
+    write_access: wave-manager-only
+    referenced_by:
+      - docs/architecture/adr-0010-wave-manager.md
+      - docs/architecture/adr-0011-game-state-fsm.md
+      - docs/architecture/adr-0013-hud-architecture.md
+    added: 2026-04-10
+    revised: ""
 
 # Example:
 #
@@ -79,7 +117,7 @@ interfaces:
     consumers:
       - enemy-health-system   # reçoit melee_performed / throw_performed → applique dégâts
       - degradation-system    # reçoit melee_performed / throw_performed → évalue destruction
-      - score-system          # reçoit grab_performed / throw_performed / melee_performed → score
+      - hud-system            # reçoit grab_performed / object_dropped / carry_interrupted → silhouette
     adr: docs/architecture/adr-0001-grab-system.md
     signal_signature: |
       grab_performed(object: RigidBody3D)
@@ -91,6 +129,98 @@ interfaces:
       - docs/architecture/adr-0001-grab-system.md
     added: 2026-04-09
     revised: "2026-04-10"  # carry_interrupted ajouté (OQ-S13-01 résolu)
+
+  - contract: camera_yaw_changed
+    status: active
+    pattern: signal
+    producer: camera-system
+    consumers:
+      - player-movement-system  # oriente déplacement
+      - grab-system             # direction de lancer (via camera_pivot)
+    adr: docs/architecture/adr-0007-camera-tps.md
+    signal_signature: "camera_yaw_changed(yaw_radians: float)"
+    referenced_by:
+      - docs/architecture/adr-0007-camera-tps.md
+      - docs/architecture/adr-0001-grab-system.md
+      - docs/architecture/adr-0006-player-movement-jump-gravity.md
+    added: 2026-04-10
+    revised: ""
+
+  - contract: wave_manager_signals
+    status: active
+    pattern: signal
+    producer: wave-manager
+    consumers:
+      - game-state-system
+      - hud-system
+    adr: docs/architecture/adr-0010-wave-manager.md
+    signal_signature: |
+      wave_started(wave_number: int)
+      wave_cleared(wave_number: int)
+      all_waves_complete()
+    referenced_by:
+      - docs/architecture/adr-0010-wave-manager.md
+      - docs/architecture/adr-0011-game-state-fsm.md
+      - docs/architecture/adr-0013-hud-architecture.md
+    added: 2026-04-10
+    revised: ""
+
+  - contract: game_state_changed
+    status: active
+    pattern: signal
+    producer: game-state-system
+    consumers:
+      - wave-manager
+      - hud-system
+    adr: docs/architecture/adr-0011-game-state-fsm.md
+    signal_signature: "game_state_changed(new_state: GameState)"
+    referenced_by:
+      - docs/architecture/adr-0011-game-state-fsm.md
+      - docs/architecture/adr-0010-wave-manager.md
+    added: 2026-04-10
+    revised: ""
+
+  - contract: retry_requested
+    status: active
+    pattern: signal
+    producer: hud-system
+    consumers:
+      - game-state-system
+    adr: docs/architecture/adr-0013-hud-architecture.md
+    signal_signature: "retry_requested()"
+    referenced_by:
+      - docs/architecture/adr-0013-hud-architecture.md
+      - docs/architecture/adr-0011-game-state-fsm.md
+    added: 2026-04-10
+    revised: ""
+
+  - contract: camera_freeze_api
+    status: active
+    pattern: direct_call
+    producer: game-state-system
+    consumers:
+      - camera-system
+    adr: docs/architecture/adr-0011-game-state-fsm.md
+    api_signature: "freeze() / unfreeze()"
+    referenced_by:
+      - docs/architecture/adr-0011-game-state-fsm.md
+      - docs/architecture/adr-0007-camera-tps.md
+    added: 2026-04-10
+    revised: ""
+
+  - contract: retry_api
+    status: active
+    pattern: direct_call
+    producer: game-state-system
+    consumers:
+      - retry-system
+    adr: docs/architecture/adr-0012-retry-wiring.md
+    api_signature: "retry() -> SceneTree.reload_current_scene()"
+    referenced_by:
+      - docs/architecture/adr-0012-retry-wiring.md
+      - docs/architecture/adr-0011-game-state-fsm.md
+    added: 2026-04-10
+    revised: ""
 
 # Example:
 #
@@ -208,6 +338,15 @@ forbidden_patterns:
       change, et empêche les tests unitaires hors scène complète."
     adr: docs/architecture/adr-0001-grab-system.md
     added: 2026-04-09
+
+  - pattern: string_based_signal_connect
+    status: active
+    description: "Interdit d'utiliser les connexions de signaux string-based (ex:
+      connect(\"player_died\", ...)). Utiliser uniquement le connect Callable-based."
+    why: "Les connexions string-based sont fragiles au refactor (noms de méthodes en string)
+      et sont considérées comme dépréciées dans les références moteur du projet."
+    adr: docs/architecture/adr-0005-di-et-signaux.md
+    added: 2026-04-10
 
   - pattern: player_body_impulse_coupling
     status: active

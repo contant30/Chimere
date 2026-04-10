@@ -1,6 +1,6 @@
 # S03 — Vagues d'ennemis
 
-> **Statut**: In Review
+> **Statut**: Approuvé
 > **Auteur**: ROM.CONTANT + agents
 > **Dernière mise à jour**: 2026-04-10
 > **Implémente le Pilier**: Pilier 2 — Le flow avant le challenge
@@ -29,11 +29,11 @@ Le joueur ne sait pas qu'il joue contre un orchestrateur. Il sait que la pièce 
 
 2. **Spawn** : S03 instancie les scènes ennemies (S09) depuis une liste de `SpawnPoint` (Node3D) disposés dans la pièce. Les ennemis sont spawnés un par un avec un délai de `SPAWN_INTERVAL` (0.5 s) entre chaque instance pour éviter un rush simultané.
 
-3. **Injection de dépendances au spawn** : avant `add_child()`, S03 injecte les `@export` de S09 : `player`, `wave_manager` (self), `score_manager`, `vfx_manager`. Conforme à S09, Règle 2.
+3. **Injection de dépendances au spawn** : avant `add_child()`, S03 injecte les `@export` de S09 : `player`, `wave_manager` (self). Conforme à S09, Règle 2.
 
 4. **Compteur d'ennemis en vie** : S03 maintient `enemies_alive: int`. Incrémenté à chaque spawn, décrémenté à chaque `enemy_died` reçu.
 
-5. **Détection de fin de vague** : quand `enemies_alive == 0` et la vague courante est active, S03 émet `wave_cleared(wave_number, enemies_killed)`, puis :
+5. **Détection de fin de vague** : quand `enemies_alive == 0` et la vague courante est active, S03 émet `wave_cleared(wave_number)`, puis :
    - Si `wave_number < 3` → attend `INTER_WAVE_DELAY` (3 s) → émet `wave_started(wave_number + 1)` → spawn la vague suivante.
    - Si `wave_number == 3` → émet `all_waves_complete()` → passe en état DONE.
 
@@ -61,6 +61,7 @@ Le joueur ne sait pas qu'il joue contre un orchestrateur. Il sait que la pièce 
 | S08 — Santé ennemie | S08 → S03 | `enemy_died(enemy: Node)` → décrémente `enemies_alive` |
 | S11 — Gestionnaire d'état | S11 → S03 | `game_state_changed(new_state)` → démarre le spawn si `COMBAT` |
 | S11 — Gestionnaire d'état | S03 → S11 | Signaux `wave_started`, `wave_cleared`, `all_waves_complete` |
+| S13 — HUD | S03 → S13 | `wave_started(wave_number)` (affichage "Vague X / 3") |
 
 ## Formulas
 
@@ -80,16 +81,14 @@ enemies_alive -= 1   # à chaque enemy_died reçu
 fin_de_vague = (enemies_alive == 0)
 ```
 
-### F3 — Ennemis tués (paramètre de wave_cleared)
+### Note — Score / kills
 
-```
-enemies_killed = WAVE_SIZES[wave_number]   # tous morts pour que la vague se termine
-```
+En MVP, S03 ne publie pas un compteur de kills : la fin de vague est déduite de `enemies_alive == 0`. Un système de score n'est pas défini dans l'index MVP ; toute métrique “kills” est post-MVP.
 
 ## Edge Cases
 
 **EC-01 — player_died pendant une vague active**
-S03 n'écoute pas `player_died`. S11 reçoit ce signal, passe en GAME_OVER, et est responsable de nettoyer S03 (appel de `abort()` ou via queue_free de la scène de jeu). S03 reste en WAVE_ACTIVE jusqu'à ce nettoyage.
+S03 n'écoute pas `player_died`. S11 reçoit ce signal, passe en GAME_OVER, puis déclenche le retry (S12) via rechargement de scène : S03 est détruit avec la scène et n'émet plus de signaux.
 
 **EC-02 — SpawnPoint occupé**
 Si un ennemi occupe déjà un SpawnPoint au moment du spawn, le nouvel ennemi est instancié au même point — Jolt gère la séparation physique. Aucune logique de détection d'occupation en MVP.
@@ -153,6 +152,7 @@ Si un signal `enemy_died` arrive après que S03 est en état DONE (délai de que
 
 ## Open Questions
 
-**OQ-01** — Méthode `abort()` sur S03 : S11 doit pouvoir interrompre S03 en cas de GAME_OVER. L'interface exacte (`abort()`, ou queue_free de la scène parente) est à définir lors du prototype S11.
+**OQ-01** — Méthode `abort()` sur S03
+Avec S12 basé sur `SceneTree.reload_current_scene()` (ADR-0012), S03 n'a pas besoin d'une méthode `abort()` en MVP. Garder l'option si un reset manuel remplace le reload plus tard.
 
 **OQ-02** — Nombre de SpawnPoints minimum : la vague 3 spawne 7 ennemis. Si la pièce ~10×10m n'a que 4 SpawnPoints, EC-03 s'applique. Définir le nombre et la position des SpawnPoints au prototype niveau design.

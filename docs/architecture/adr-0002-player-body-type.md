@@ -1,7 +1,7 @@
 # ADR-0002: Player Body Type and Collision Layers
 
 ## Status
-Proposed
+Accepted
 
 ## Date
 2026-04-09
@@ -15,7 +15,7 @@ Proposed
 | **Knowledge Risk** | HIGH — post-LLM-cutoff (4.6 est post-training) |
 | **References Consulted** | `docs/engine-reference/godot/modules/physics.md`, `docs/engine-reference/godot/breaking-changes.md` |
 | **Post-Cutoff APIs Used** | `CharacterBody3D.move_and_slide()` (API stable), `collision_layer` / `collision_mask` bitmask integers (stable) |
-| **Verification Required** | Vérifier que move_and_slide() ne génère aucun impulse sur RigidBody3D adjacent sous Jolt 4.6.2 ; vérifier le comportement du raycast GrabSystem avec collision_mask = 3 dans une scène peuplée |
+| **Verification Required** | Vérifier que move_and_slide() ne génère aucun impulse sur RigidBody3D adjacent sous Jolt 4.6.2 ; vérifier le comportement du raycast GrabSystem avec collision_mask = 4 (layer 3) dans une scène peuplée |
 
 ## ADR Dependencies
 
@@ -24,7 +24,7 @@ Proposed
 | **Depends On** | None |
 | **Enables** | ADR-0001 (GrabSystem — collision_mask du raycast S02 dépend du layer 3 défini ici) |
 | **Blocks** | Epic S01 — Déplacement joueur (ne peut pas commencer l'implémentation sans ce ADR Accepted) |
-| **Ordering Note** | Doit être Accepted avant la création des stories S01 ; ADR-0001 peut être Accepted en parallèle |
+| **Ordering Note** | Doit être Accepted avant la création des stories S01 et avant ADR-0001 ; ADR-0001 peut être rédigé en parallèle mais doit être Accepted après |
 
 ## Context
 
@@ -78,8 +78,8 @@ World   collision_layer = 1,   collision_mask = 0           (statique, pas de d�
 
 ```
 CharacterBody3D (Player)          layer=2, mask=1|3|4
-├── GrabSystem (Node)             ─ S02 : raycast mask=3 seulement
-│     PhysicsRayQueryParameters3D.collision_mask = 3
+├── GrabSystem (Node)             ─ S02 : raycast mask=4 (layer 3 seulement)
+│     PhysicsRayQueryParameters3D.collision_mask = 4
 └── CameraPivot (Node3D)          ─ S03
 
 RigidBody3D (Object)              layer=3, mask=1|3|4
@@ -125,26 +125,26 @@ func _physics_process(delta: float) -> void:
 - **Description** : Joueur piloté par forces physiques ; mouvement via `apply_force()` ou `linear_velocity`
 - **Pros** : Interactions physiques réalistes avec l'environnement
 - **Cons** : Comportement imprévisible dans une scène dense d'objets ; difficile à contrôler précisément ; les mouvements de plateforme (saut, coyote time) sont notoirement difficiles avec RigidBody3D
-- **Rejection Reason** : Incompatible avec les exigences de contrôle précis de S01 (coyote time, jump buffering) ; Jolt amplifie l'imprévisibilité dans des salles petites (10×10 m) avec de nombreux objets
+- **Raison du rejet** : Incompatible avec les exigences de controle precis de S01 (coyote time, jump buffering) ; Jolt amplifie l'imprevisibilite dans des salles petites (10x10 m) avec de nombreux objets
 
 ### Alternative B : AnimatableBody3D
 - **Description** : Corps animé déplacé par `move_and_collide()` ou transform direct
 - **Pros** : Déplacement entièrement scriptable sans physique
 - **Cons** : Pas conçu pour des personnages pilotés par l'input ; ne bénéficie pas des helpers de CharacterBody3D (is_on_floor, move_and_slide, etc.)
-- **Rejection Reason** : Mauvais outil pour le cas d'usage ; CharacterBody3D est le standard Godot pour les personnages joueurs
+- **Raison du rejet** : Mauvais outil pour le cas d'usage ; CharacterBody3D est le standard Godot pour les personnages joueurs
 
 ### Alternative C : CharacterBody3D avec code de poussée ajouté
 - **Description** : CharacterBody3D + move_and_slide(), mais avec un block de code qui applique un impulse aux RigidBody3D touchés pendant le déplacement
 - **Pros** : Permet de pousser les objets avec le corps
 - **Cons** : Contraire à la Core Rule 7 de S01 ; complique le système de saisie (le joueur pourrait "pousser" un objet qu'il essaie de saisir)
-- **Rejection Reason** : Explicitement interdit par S01. La non-poussée est un comportement voulu, pas un manque à combler.
+- **Raison du rejet** : Explicitement interdit par S01. La non-poussee est un comportement voulu, pas un manque a combler.
 
 ## Consequences
 
 ### Positive
 - Mouvement joueur prévisible et contrôlable (CharacterBody3D est le standard Godot)
 - Core Rule 7 respectée naturellement — aucun code additionnel requis
-- Le raycast GrabSystem (mask=3) est totalement indépendant du mask de collision du joueur
+- Le raycast GrabSystem (mask=4) est totalement indépendant du mask de collision du joueur
 - Les 4 layers sont suffisants pour le MVP ; extensibles sans breaking changes (layers 5-32 disponibles)
 - Configuration inspectable dans l'éditeur Godot (Inspector → CollisionObject3D)
 
@@ -160,7 +160,7 @@ func _physics_process(delta: float) -> void:
 
 ## GDD Requirements Addressed
 
-| GDD System | Requirement | How This ADR Addresses It |
+| Systeme GDD | Exigence | Comment cet ADR la satisfait |
 |------------|-------------|--------------------------|
 | deplacement-joueur.md | Core Rule 1 : CharacterBody3D + move_and_slide() | Décision principale de cet ADR |
 | deplacement-joueur.md | Core Rule 7 : le joueur ne pousse pas les RigidBody3D | move_and_slide() ne génère pas d'impulse — comportement naturel confirmé |
@@ -185,6 +185,6 @@ Premier ADR de mouvement du projet — pas de code existant à migrer.
 5. `move_and_slide()` retourne `is_on_floor() == true` sur sol plat sous Jolt 4.6.2
 
 ## Related Decisions
-- ADR-0001 : GrabSystem Architecture — utilise collision_mask=3 (layer 3) pour le raycast
+- ADR-0001 : GrabSystem Architecture — utilise collision_mask=4 (layer 3) pour le raycast
 - `design/gdd/deplacement-joueur.md` — S01, source des Core Rules et OQ-04
 - `design/gdd/saisie-lancer.md` — S02, source de l'exigence de raycast isolé

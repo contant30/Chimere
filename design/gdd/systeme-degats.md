@@ -1,8 +1,8 @@
 # Système de dégâts
 
-> **Statut** : Révisé — en attente de re-review
+> **Statut** : Approuvé
 > **Auteur** : Game Designer + Systems Designer
-> **Dernière mise à jour** : 2026-04-08 (révision post-re-review — 5 bloquants corrigés)
+> **Dernière mise à jour** : 2026-04-10 (statut approuvé)
 > **Implémente le pilier** : Pilier 1 — Tout est une arme · Pilier 2 — Le flow avant le challenge
 
 ## Overview

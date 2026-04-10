@@ -1,100 +1,100 @@
-# Architecture Review — 2026-04-10
+# Revue d'architecture - 2026-04-10
 
-**Mode:** `/architecture-review` (full)  
-**Engine:** Godot 4.6.2 (Jolt, GDScript)  
-**Inputs loaded:** 14 GDDs (`design/gdd/*.md`), 3 ADRs (`docs/architecture/adr-*.md`)  
-**Artifacts updated:** `docs/architecture/tr-registry.yaml`, `docs/architecture/architecture-traceability.md`
-
----
-
-## Verdict: FAIL
-
-Reason: foundational requirements are not backed by **Accepted** ADRs, and the current ADR set does not cover most MVP systems. There is also a cross-ADR dependency ordering inconsistency (see Conflict #1).
+**Mode :** `/architecture-review` (full)  
+**Moteur :** Godot 4.6.2 (Jolt, GDScript)  
+**Entrees chargees :** 14 GDD (`design/gdd/*.md`), 5 ADR (`docs/architecture/adr-*.md`)  
+**Artefacts mis a jour :** `docs/architecture/tr-registry.yaml`, `docs/architecture/architecture-traceability.md`
 
 ---
 
-## What’s in good shape
+## Verdict : FAIL
 
-- ADR format completeness: `ADR-0001`, `ADR-0002`, `ADR-0003` include the required template sections (Status/Context/Decision/Consequences/Dependencies/Engine Compatibility/GDD Requirements Addressed).
-- Engine pin is explicit (Godot 4.6.2) and ADRs cite the local engine reference docs.
-- S06 (damage formula) is clearly specified and centralized via ADR-0003.
+Raison : les exigences fondamentales ne sont pas couvertes par des ADR **Accepted**, et l'ensemble actuel d'ADR ne couvre pas la plupart des systemes MVP.
 
 ---
 
-## Blocking Issues (must resolve before PASS)
+## Points solides
 
-1. **No Accepted ADRs**  
-   All current ADRs are `Proposed`. This blocks story creation/implementation for the systems they claim to gate (S01/S02/S06).
-
-2. **Foundation layer gaps (architecture coverage)**
-   - S05 (Catalogue d’objets) has no ADR defining its data model and runtime access pattern (the GDD requires Resource-based entries + per-object `@export` references and no global lookup).
-   - S01, S10, S11, S12, S03, S07/S08, S09 are not covered by Accepted ADRs.
-
-3. **Conflict #1: ADR dependency ordering mismatch**
-   - `ADR-0002` states its collision layer scheme is required for S02 raycast masking, which implies `ADR-0001` depends on it.
-   - `ADR-0001` marks `ADR-0002` as “Enables”, while `ADR-0002` marks `ADR-0001` as “Enables”. Dependency direction and ordering note are inconsistent.
-
-4. **Godot deprecated-pattern risk (design-level)**
-   `docs/engine-reference/godot/deprecated-apis.md` flags string-based `connect()` as deprecated. Several GDDs describe wiring signals via “connect()” without specifying typed-callable usage. This needs an explicit coding/architecture rule to prevent regressions.
+- Format ADR : `ADR-0001`, `ADR-0002`, `ADR-0003` contiennent les sections attendues (Status, Context, Decision, Consequences, ADR Dependencies, Engine Compatibility, GDD Requirements Addressed).
+- Le moteur est clairement "pinned" (Godot 4.6.2) et les ADR citent la reference moteur locale.
+- S06 (formule de degats) est specifie de facon claire et centralise via `ADR-0003`.
 
 ---
 
-## Cross-ADR Conflicts
+## Bloquants (a resoudre avant PASS)
 
-| Conflict ID | ADR A | ADR B | Type | Status |
+1. **Aucun ADR Accepted**  
+   Les 3 ADR existants sont `Proposed`. Ca bloque la creation/implementation de stories pour les systemes qu'ils disent "gater" (S01/S02/S06).
+
+2. **Gros manques de couverture (architecture)**
+   - S05 (Catalogue d'objets) a un ADR de modele de donnees (`ADR-0004`) mais il est encore `Proposed` (pas `Accepted`).
+   - Les conventions transversales DI + signaux existent (`ADR-0005`) mais sont encore `Proposed` (pas `Accepted`).
+   - S03, S07/S08, S09, S10, S11, S12, S13 n'ont pas d'ADR (Accepted) definissant leurs contrats et limites.
+
+3. **Risque "patterns deprecies" (Godot)**
+   `docs/engine-reference/godot/deprecated-apis.md` considere les connexions de signaux en `connect("signal", ...)` (string-based) comme depreciees au profit des Callables. Il faut une regle d'architecture/coding pour l'imposer et eviter les regressions.
+
+---
+
+## Conflits inter-ADR
+
+| Conflict ID | ADR A | ADR B | Type | Statut |
 |-------------|-------|-------|------|--------|
-| CONFLICT-001 | ADR-0001 | ADR-0002 | Dependency ordering | 🔴 Unresolved |
+| CONFLICT-001 | ADR-0001 | ADR-0002 | Ordre de dependances | RESOLU (ADR-0001 depend de ADR-0002 ; ordering notes alignees) |
 
 ---
 
-## Coverage Summary (TR registry)
+## Resume couverture (TR registry)
 
-The TR registry was bootstrapped in `docs/architecture/tr-registry.yaml` and indexed in `docs/architecture/architecture-traceability.md`.
+Le registre TR a ete initialise dans `docs/architecture/tr-registry.yaml` et indexe dans `docs/architecture/architecture-traceability.md`.
 
-High-level state right now:
-- Requirements with any ADR mapping: limited to S01/S02/S06 (and only as Proposed ADRs).
-- Most MVP systems remain architectural gaps (S03/S05/S07/S08/S09/S10/S11/S12/S13).
+Etat a date :
+- Exigences avec un mapping ADR : limite a S01/S02/S06 (et seulement via des ADR Proposed).
+- La plupart des systemes MVP restent des trous d'architecture (S03/S05/S07/S08/S09/S10/S11/S12/S13).
 
 ---
 
-## Required ADRs (prioritised)
+## ADR requis (priorises)
 
 ### Foundation (BLOCKING)
 
-1. **S05 — Object catalogue data model**
-   - Resource schema (`ObjectCatalogueEntry`, stages, thresholds, fields) and access pattern (`@export` direct reference; no global lookup).
+1. **S05 - Catalogue d'objets**
+   - Faire passer `ADR-0004` en `Accepted` apres validation (wiring + coherences des Resources).
 
-2. **Signals & dependency injection conventions (cross-cutting)**
-   - Typed signal connections (Callable-based), required signal naming, injection approach (`@export` vs constructor patterns), and “no hidden globals”.
+2. **Conventions signaux + injection de dependances (transversal)**
+   - Faire passer `ADR-0005` en `Accepted`, puis l'appliquer partout (Callable connect, DI `@export`, pas d'Autoload sans ADR).
 
-3. **S01 — Player movement implementation boundaries**
-   - What is “architecture” vs “tuning” for movement, and how S01 depends on S10 (camera yaw contract).
+3. **S01 - Limites d'implementation du mouvement**
+   - Ce qui releve de l'architecture vs du tuning, et le contrat S01 <-> S10 (yaw camera).
 
-### Core / Infrastructure (BLOCKING for those systems)
+### Core / Infrastructure (bloquant par systeme)
 
-4. **S10 — Camera node architecture**
-   - Pivot + SpringArm composition, collision masks (exclude layer 3 objects), freeze/unfreeze contract.
+4. **S10 - Architecture camera**
+   - Pivot + SpringArm, masks de collision (exclure layer 3), contrat freeze/unfreeze.
 
-5. **S11 — Game state manager architecture**
-   - FSM ownership, signal contracts, freeze/retry sequencing.
+5. **S11 - Architecture FSM etat de jeu**
+   - Autorite FSM, contrats de signaux, sequencing freeze/retry.
 
-6. **S12 — Retry wiring**
-   - Interface choice S11→S12 (direct call via injected reference vs signal), and the “≤ 3s” budget enforcement strategy.
+6. **S12 - Wiring retry**
+   - Interface S11 -> S12 (appel direct injecte vs signal) et strategie pour garantir le budget "<= 3s".
 
-7. **S03 — Wave manager architecture**
-   - Spawnpoints, injection, lifecycle/abort behavior on GAME_OVER.
+7. **S03 - Architecture vagues**
+   - SpawnPoints, injection, lifecycle/abort en GAME_OVER.
 
-8. **S07/S08 — Health component contracts**
-   - Shared `receive_damage()` contract, signal ownership, idempotence rules.
+8. **S07/S08 - Contrats sante**
+   - Contrat commun `receive_damage()`, ownership des signaux, regles d'idempotence.
 
-9. **S09 — Enemy scene composition**
-   - NavigationAgent3D usage boundaries, STUCK fallback, how S02 finds S08 reliably (scene-local node path contract).
+9. **S09 - Contrat de scene ennemi**
+   - Composition, limites NavigationAgent3D, fallback STUCK, et comment S02 trouve S08 de facon robuste (contrat de node path).
+
+### Presentation
+
+10. **S13 - HUD**
+   - Placement (CanvasLayer), signaux consommes, et interface `retry_requested` -> S11.
 
 ---
 
-## Next Step
+## Suite
 
-1. Resolve `CONFLICT-001` by aligning ADR-0001/0002 dependency direction and ordering notes.
-2. Promote ADR-0002 and ADR-0003 to `Accepted` once validated, then decide whether ADR-0001 is ready to accept.
-3. Write the missing Foundation/Core ADRs above, then re-run `/architecture-review` (full).
-
+1. Faire passer `ADR-0002` et `ADR-0003` en `Accepted` une fois valides, puis decider si `ADR-0001` est pret a etre accepte.
+2. Ecrire les ADR Foundation/Core manquants ci-dessus, puis relancer `/architecture-review` (full).

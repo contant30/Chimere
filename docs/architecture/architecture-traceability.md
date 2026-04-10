@@ -1,122 +1,111 @@
-# Architecture Traceability Index
+# Index de tracabilite d'architecture
 
-<!-- Living document — updated by /architecture-review after each review run.
-     Do not edit manually unless correcting an error. -->
+<!-- Document vivant - mis a jour par /architecture-review apres chaque revue.
+     Ne pas editer manuellement sauf correction d'erreur. -->
 
-## Document Status
+## Statut du document
 
-- **Last Updated**: 2026-04-10
-- **Engine**: Godot 4.6.2
-- **GDDs Indexed**: 14
-- **ADRs Indexed**: 3
-- **Last Review**: `docs/architecture/architecture-review-2026-04-10.md`
+- **Derniere mise a jour :** 2026-04-10
+- **Moteur :** Godot 4.6.2
+- **GDD indexees :** 14
+- **ADR indexees :** 14
+- **Derniere revue :** `docs/architecture/architecture-review-2026-04-10b.md`
 
-## Coverage Summary
+## Resume de couverture
 
-| Status | Count | Percentage |
-|--------|-------|-----------|
-| ✅ Covered | 0 | 0% |
-| ⚠️ Partial | 10 | 20.8% |
-| ❌ Gap | 38 | 79.2% |
+| Statut | Nombre | Pourcentage |
+|--------|--------|-------------|
+| COUVERT | 48 | 100% |
+| PARTIEL | 0 | 0% |
+| MANQUE | 0 | 0% |
 | **Total** | **48** | |
 
 ---
 
-## Traceability Matrix
+## Matrice de tracabilite
 
-| Req ID | GDD | System | Requirement Summary | ADR(s) | Status | Notes |
-|--------|-----|--------|---------------------|--------|--------|-------|
-| TR-concept-001 | design/gdd/game-concept.md | concept | Single-room, single-player sessions; no progression between runs. | — | ❌ GAP | Needs explicit architecture baseline doc (architecture.md or ADR). |
-| TR-concept-002 | design/gdd/game-concept.md | concept | MVP content targets and immediate retry as a core pillar. | — | ❌ GAP | Needs mapping to S12/S11 ADRs. |
-| TR-systems-index-001 | design/gdd/systems-index.md | systems-index | S03↔S11 signals contract to break circular dependency. | — | ❌ GAP | Needs ADR defining the signal contract + ownership. |
-| TR-deplacement-joueur-001 | design/gdd/deplacement-joueur.md | deplacement-joueur | CharacterBody3D + move_and_slide(). | ADR-0002 | ⚠️ PARTIAL | ADR-0002 is still Proposed (not Accepted). |
-| TR-deplacement-joueur-002 | design/gdd/deplacement-joueur.md | deplacement-joueur | Player must not push RigidBody3D; enforce via collision layers/masks. | ADR-0002 | ⚠️ PARTIAL | ADR-0002 is still Proposed (not Accepted). |
-| TR-deplacement-joueur-003 | design/gdd/deplacement-joueur.md | deplacement-joueur | Single jump + coyote time (COYOTE_FRAMES). | — | ❌ GAP | Needs movement implementation decision scope (ADR or architecture.md). |
-| TR-deplacement-joueur-004 | design/gdd/deplacement-joueur.md | deplacement-joueur | Manual gravity sourced from ProjectSettings default gravity. | — | ❌ GAP | Needs movement implementation decision scope (ADR or architecture.md). |
-| TR-saisie-lancer-001 | design/gdd/saisie-lancer.md | saisie-lancer | Grab cone + grab_range_m (from S05), single held object. | ADR-0001 | ⚠️ PARTIAL | ADR-0001 is Proposed; S05 dependency not covered by ADR. |
-| TR-saisie-lancer-002 | design/gdd/saisie-lancer.md | saisie-lancer | Carry object kinematic/frozen + carry_offset; carried collisions don’t block player. | ADR-0001 | ⚠️ PARTIAL | Validate Jolt freeze behavior in prototype; then accept ADR. |
-| TR-saisie-lancer-003 | design/gdd/saisie-lancer.md | saisie-lancer | Throw uses apply_central_impulse() along camera yaw. | ADR-0001 | ⚠️ PARTIAL | ADR-0001 is Proposed; depends on S10 yaw contract. |
-| TR-saisie-lancer-004 | design/gdd/saisie-lancer.md | saisie-lancer | GrabSystem signals grab_performed/throw_performed/melee_performed. | ADR-0001 | ⚠️ PARTIAL | Also affects S13/S08/S04/S11 integration. |
-| TR-catalogue-objets-001 | design/gdd/catalogue-objets.md | catalogue-objets | Catalogue Resources + per-object @export entry; no global lookup. | — | ❌ GAP | Needs S05 data-model ADR. |
-| TR-catalogue-objets-002 | design/gdd/catalogue-objets.md | catalogue-objets | Entry includes physics + interaction parameters. | — | ❌ GAP | Needs S05 data-model ADR. |
-| TR-catalogue-objets-003 | design/gdd/catalogue-objets.md | catalogue-objets | Multi-stage destruction transitions (damage thresholds / uses). | — | ❌ GAP | Needs S05/S04 boundary ADR. |
-| TR-catalogue-objets-004 | design/gdd/catalogue-objets.md | catalogue-objets | DestructionTracker reads entry once at _ready() and updates on receive_damage/register_use. | — | ❌ GAP | Needs S04 implementation + ownership ADR. |
-| TR-systeme-degats-001 | design/gdd/systeme-degats.md | systeme-degats | Pure stateless damage function (no node/signals/state). | ADR-0003 | ⚠️ PARTIAL | ADR-0003 is Proposed (not Accepted). |
-| TR-systeme-degats-002 | design/gdd/systeme-degats.md | systeme-degats | calculate(damage_base:int, stage_mult:float, damage_type) -> int; no direct S05 read. | ADR-0003 | ⚠️ PARTIAL | Requires call-site rules (S02/S09) to be enforced. |
-| TR-systeme-degats-003 | design/gdd/systeme-degats.md | systeme-degats | final_damage = max(1, floori(damage_base * stage_mult)). | ADR-0003 | ⚠️ PARTIAL | Add unit tests once test harness exists. |
-| TR-systeme-degats-004 | design/gdd/systeme-degats.md | systeme-degats | DamageType enum values; does not affect math. | ADR-0003 | ⚠️ PARTIAL | Ensure shared type import strategy for S02/S07/S08/S09. |
-| TR-sante-joueur-001 | design/gdd/sante-joueur.md | sante-joueur | Player receive_damage(amount:int, type:DamageType) does not recalc damage. | — | ❌ GAP | Needs S07 component + wiring ADR. |
-| TR-sante-joueur-002 | design/gdd/sante-joueur.md | sante-joueur | I-frames for player (0.5s). | — | ❌ GAP | Needs S07 component ADR (timer strategy, determinism). |
-| TR-sante-joueur-003 | design/gdd/sante-joueur.md | sante-joueur | Emit player_hp_changed/player_hit; emit player_died once; ignore after death. | — | ❌ GAP | Needs S07/S11/S13 signal ownership ADR. |
-| TR-sante-ennemie-001 | design/gdd/sante-ennemie.md | sante-ennemie | Enemy receive_damage processes every hit (no i-frames). | — | ❌ GAP | Needs S08 component + wiring ADR. |
-| TR-sante-ennemie-002 | design/gdd/sante-ennemie.md | sante-ennemie | Emit enemy_hit for feedback; no HP bar in MVP. | — | ❌ GAP | Needs S08→S15 signal contract ADR. |
-| TR-sante-ennemie-003 | design/gdd/sante-ennemie.md | sante-ennemie | Emit enemy_died once then queue_free enemy. | — | ❌ GAP | Needs S08→S03/S11/S12 contract ADR. |
-| TR-ia-ennemie-001 | design/gdd/ia-ennemie.md | ia-ennemie | Enemy scene composition (CharacterBody3D + S08 + NavigationAgent3D). | — | ❌ GAP | Needs S09 scene contract ADR (node names, ownership). |
-| TR-ia-ennemie-002 | design/gdd/ia-ennemie.md | ia-ennemie | Dependency injection via @export before add_child; _ready wires signals. | — | ❌ GAP | Needs DI + signal wiring conventions ADR. |
-| TR-ia-ennemie-003 | design/gdd/ia-ennemie.md | ia-ennemie | NavigationAgent3D targets player; navmesh only static geometry. | — | ❌ GAP | Needs navmesh + dynamic obstacle policy ADR. |
-| TR-ia-ennemie-004 | design/gdd/ia-ennemie.md | ia-ennemie | STUCK fallback: straight-line movement + periodic path retries. | — | ❌ GAP | Needs behavior ownership ADR (AI vs navigation module). |
-| TR-camera-tps-001 | design/gdd/camera-tps.md | camera-tps | Pivot + SpringArm3D composition and defaults. | — | ❌ GAP | Needs S10 camera ADR. |
-| TR-camera-tps-002 | design/gdd/camera-tps.md | camera-tps | Yaw free, pitch clamp, fixed FOV. | — | ❌ GAP | Needs S10 camera ADR. |
-| TR-camera-tps-003 | design/gdd/camera-tps.md | camera-tps | Emit camera_yaw_changed every frame + at _ready. | — | ❌ GAP | Needs S10→S01 contract ADR. |
-| TR-camera-tps-004 | design/gdd/camera-tps.md | camera-tps | freeze()/unfreeze() and freeze on player_died. | — | ❌ GAP | Needs S10↔S11 interface ADR. |
-| TR-vagues-ennemis-001 | design/gdd/vagues-ennemis.md | vagues-ennemis | Static 3-wave structure [3,5,7]. | — | ❌ GAP | Needs S03 wave manager ADR. |
-| TR-vagues-ennemis-002 | design/gdd/vagues-ennemis.md | vagues-ennemis | Spawn from SpawnPoint nodes with interval + DI before add_child. | — | ❌ GAP | Needs S03 spawn + DI ADR. |
-| TR-vagues-ennemis-003 | design/gdd/vagues-ennemis.md | vagues-ennemis | Track enemies_alive; wave_cleared/all_waves_complete. | — | ❌ GAP | Needs S03→S11/S13 contract ADR. |
-| TR-vagues-ennemis-004 | design/gdd/vagues-ennemis.md | vagues-ennemis | Start spawning only on game_state_changed(COMBAT). | — | ❌ GAP | Needs S03↔S11 handshake ADR. |
-| TR-gestionnaire-etat-001 | design/gdd/gestionnaire-etat.md | gestionnaire-etat | S11 is sole state authority; emits game_state_changed. | — | ❌ GAP | Needs S11 FSM ADR. |
-| TR-gestionnaire-etat-002 | design/gdd/gestionnaire-etat.md | gestionnaire-etat | FSM transitions driven by S03/S07 signals. | — | ❌ GAP | Needs S11 FSM ADR. |
-| TR-gestionnaire-etat-003 | design/gdd/gestionnaire-etat.md | gestionnaire-etat | GAME_OVER triggers S10.freeze + retry within ≤3s via S12. | — | ❌ GAP | Needs S11/S12 interface ADR. |
-| TR-gestionnaire-etat-004 | design/gdd/gestionnaire-etat.md | gestionnaire-etat | No gameplay logic in S11. | — | ❌ GAP | Needs S11 ADR scope. |
-| TR-retry-reinitialisation-001 | design/gdd/retry-reinitialisation.md | retry-reinitialisation | S12 retry() calls reload_current_scene(). | — | ❌ GAP | Needs S12 ADR (wiring + failure strategy). |
-| TR-retry-reinitialisation-002 | design/gdd/retry-reinitialisation.md | retry-reinitialisation | Triggered only by S11 in GAME_OVER. | — | ❌ GAP | Needs S11→S12 interface ADR. |
-| TR-retry-reinitialisation-003 | design/gdd/retry-reinitialisation.md | retry-reinitialisation | Total retry time ≤ 3s; no fade in MVP. | — | ❌ GAP | Needs performance budget + measurement strategy. |
-| TR-hud-001 | design/gdd/hud.md | hud | HUD is CanvasLayer and read-only (minimal outbound). | — | ❌ GAP | Needs UI architecture ADR (signals, scene placement). |
-| TR-hud-002 | design/gdd/hud.md | hud | Consumes S07/S03/GrabSystem signals to drive HP/waves/silhouette. | — | ❌ GAP | Depends on S07/S03/S11/S02 ADRs. |
-| TR-hud-003 | design/gdd/hud.md | hud | HP bar immediate fill update + 440ms hit flash rules. | — | ❌ GAP | UI implementation spec; no ADR yet. |
-| TR-hud-004 | design/gdd/hud.md | hud | Emits retry_requested() only in GAME_OVER to S11. | — | ❌ GAP | Needs S13↔S11 interface ADR. |
-
----
-
-## Known Gaps
-
-### Foundation Layer Gaps (BLOCKING — must resolve before coding)
-
-- [ ] TR-catalogue-objets-001 — Catalogue data access pattern (Resources + per-object `@export`) needs an ADR.
-- [ ] TR-catalogue-objets-002 — Catalogue schema fields need an ADR.
-- [ ] TR-catalogue-objets-003 — Destruction stages ownership boundaries (S05/S04/S02) need an ADR.
-- [ ] TR-catalogue-objets-004 — DestructionTracker ownership and lifecycle need an ADR.
-- [ ] TR-deplacement-joueur-003 — Movement jump model scope needs an explicit decision (ADR or architecture.md).
-- [ ] TR-deplacement-joueur-004 — Gravity source/update rule needs an explicit decision (ADR or architecture.md).
-
-### Core Layer Gaps (must resolve before relevant system is built)
-
-- [ ] TR-camera-tps-001..004 — Camera architecture ADR missing.
-- [ ] TR-ia-ennemie-001..004 — Enemy AI/scene architecture ADR missing.
-- [ ] TR-sante-joueur-001..003 — Player health component ADR missing.
-- [ ] TR-sante-ennemie-001..003 — Enemy health component ADR missing.
-
-### Feature / Presentation Layer Gaps (should resolve before feature sprint)
-
-- [ ] TR-vagues-ennemis-001..004 — Wave manager architecture ADR missing.
-- [ ] TR-gestionnaire-etat-001..004 — Game state manager architecture ADR missing.
-- [ ] TR-retry-reinitialisation-001..003 — Retry wiring/performance ADR missing.
-- [ ] TR-hud-001..004 — HUD architecture ADR missing.
+| ID TR | GDD | Systeme | Resume exigence | ADR(s) | Statut | Notes |
+|-------|-----|---------|-----------------|--------|--------|-------|
+| TR-concept-001 | design/gdd/game-concept.md | concept | Sessions en piece unique, solo ; aucune progression entre les runs. | ADR-0014 | COUVERT | — |
+| TR-concept-002 | design/gdd/game-concept.md | concept | Cibles de contenu MVP + retry immediat comme pilier. | ADR-0014 | COUVERT | — |
+| TR-systems-index-001 | design/gdd/systems-index.md | systems-index | Contrat de signaux S03<->S11 pour casser la dependance circulaire. | ADR-0010, ADR-0011 | COUVERT | — |
+| TR-deplacement-joueur-001 | design/gdd/deplacement-joueur.md | deplacement-joueur | CharacterBody3D + move_and_slide(). | ADR-0002 | COUVERT | — |
+| TR-deplacement-joueur-002 | design/gdd/deplacement-joueur.md | deplacement-joueur | Le joueur ne doit pas pousser les RigidBody3D ; a imposer via layers/masks. | ADR-0002 | COUVERT | — |
+| TR-deplacement-joueur-003 | design/gdd/deplacement-joueur.md | deplacement-joueur | Saut unique + coyote time (COYOTE_FRAMES). | ADR-0006 | COUVERT | — |
+| TR-deplacement-joueur-004 | design/gdd/deplacement-joueur.md | deplacement-joueur | Gravite appliquee manuellement via ProjectSettings (default gravity). | ADR-0006 | COUVERT | — |
+| TR-saisie-lancer-001 | design/gdd/saisie-lancer.md | saisie-lancer | Cone de saisie + grab_range_m (via S05), un seul objet tenu. | ADR-0001, ADR-0004 | COUVERT | — |
+| TR-saisie-lancer-002 | design/gdd/saisie-lancer.md | saisie-lancer | Portage : objet kinematic/freeze + carry_offset ; collisions portees ne bloquent pas le joueur. | ADR-0001 | COUVERT | — |
+| TR-saisie-lancer-003 | design/gdd/saisie-lancer.md | saisie-lancer | Lancer : apply_central_impulse() aligne sur le yaw camera. | ADR-0001, ADR-0007 | COUVERT | — |
+| TR-saisie-lancer-004 | design/gdd/saisie-lancer.md | saisie-lancer | Signaux GrabSystem : grab_performed / throw_performed / melee_performed. | ADR-0001 | COUVERT | — |
+| TR-catalogue-objets-001 | design/gdd/catalogue-objets.md | catalogue-objets | Catalogue : Resources + entree `@export` par objet ; pas de lookup global. | ADR-0004 | COUVERT | — |
+| TR-catalogue-objets-002 | design/gdd/catalogue-objets.md | catalogue-objets | L'entree inclut les params physiques + interaction. | ADR-0004 | COUVERT | — |
+| TR-catalogue-objets-003 | design/gdd/catalogue-objets.md | catalogue-objets | Destruction multi-stades (seuils degats / uses). | ADR-0004 | COUVERT | — |
+| TR-catalogue-objets-004 | design/gdd/catalogue-objets.md | catalogue-objets | DestructionTracker lit l'entree en _ready() et update sur receive_damage/register_use. | ADR-0004 | COUVERT | — |
+| TR-systeme-degats-001 | design/gdd/systeme-degats.md | systeme-degats | Fonction de degats pure stateless (pas de node/signaux/etat). | ADR-0003 | COUVERT | — |
+| TR-systeme-degats-002 | design/gdd/systeme-degats.md | systeme-degats | calculate(damage_base:int, stage_mult:float, damage_type) -> int ; pas de lecture directe S05. | ADR-0003 | COUVERT | — |
+| TR-systeme-degats-003 | design/gdd/systeme-degats.md | systeme-degats | final_damage = max(1, floori(damage_base * stage_mult)). | ADR-0003 | COUVERT | — |
+| TR-systeme-degats-004 | design/gdd/systeme-degats.md | systeme-degats | DamageType enum ; n'influence pas les maths (sert au feedback). | ADR-0003 | COUVERT | — |
+| TR-sante-joueur-001 | design/gdd/sante-joueur.md | sante-joueur | Player receive_damage(amount:int, type:DamageType) ne recalcule pas les degats. | ADR-0008 | COUVERT | — |
+| TR-sante-joueur-002 | design/gdd/sante-joueur.md | sante-joueur | I-frames joueur (0.5s). | ADR-0008 | COUVERT | — |
+| TR-sante-joueur-003 | design/gdd/sante-joueur.md | sante-joueur | Emet player_hp_changed/player_hit ; emet player_died une fois ; ignore apres mort. | ADR-0008 | COUVERT | — |
+| TR-sante-ennemie-001 | design/gdd/sante-ennemie.md | sante-ennemie | Enemy receive_damage traite tous les hits (pas d'i-frames). | ADR-0008 | COUVERT | — |
+| TR-sante-ennemie-002 | design/gdd/sante-ennemie.md | sante-ennemie | Emet enemy_hit pour feedback ; pas de barre de vie en MVP. | ADR-0008 | COUVERT | — |
+| TR-sante-ennemie-003 | design/gdd/sante-ennemie.md | sante-ennemie | Emet enemy_died une fois puis queue_free. | ADR-0008 | COUVERT | — |
+| TR-ia-ennemie-001 | design/gdd/ia-ennemie.md | ia-ennemie | Contrat scene ennemi (CharacterBody3D + S08 + NavigationAgent3D). | ADR-0009 | COUVERT | — |
+| TR-ia-ennemie-002 | design/gdd/ia-ennemie.md | ia-ennemie | Injection via @export avant add_child ; _ready cable les signaux. | ADR-0009 | COUVERT | — |
+| TR-ia-ennemie-003 | design/gdd/ia-ennemie.md | ia-ennemie | NavigationAgent3D cible player ; navmesh = geometrie statique uniquement. | ADR-0009 | COUVERT | — |
+| TR-ia-ennemie-004 | design/gdd/ia-ennemie.md | ia-ennemie | Fallback STUCK : ligne droite + retry path periodique. | ADR-0009 | COUVERT | — |
+| TR-camera-tps-001 | design/gdd/camera-tps.md | camera-tps | Pivot + SpringArm3D (composition + valeurs par defaut). | ADR-0007 | COUVERT | — |
+| TR-camera-tps-002 | design/gdd/camera-tps.md | camera-tps | Yaw libre, pitch clamp, FOV fixe. | ADR-0007 | COUVERT | — |
+| TR-camera-tps-003 | design/gdd/camera-tps.md | camera-tps | Emet camera_yaw_changed chaque frame + au _ready. | ADR-0007 | COUVERT | — |
+| TR-camera-tps-004 | design/gdd/camera-tps.md | camera-tps | freeze()/unfreeze() + freeze sur player_died. | ADR-0007, ADR-0011 | COUVERT | — |
+| TR-vagues-ennemis-001 | design/gdd/vagues-ennemis.md | vagues-ennemis | Structure MVP de 3 vagues [3,5,7]. | ADR-0010 | COUVERT | — |
+| TR-vagues-ennemis-002 | design/gdd/vagues-ennemis.md | vagues-ennemis | Spawn via SpawnPoints + intervalle + DI avant add_child. | ADR-0010 | COUVERT | — |
+| TR-vagues-ennemis-003 | design/gdd/vagues-ennemis.md | vagues-ennemis | enemies_alive ; wave_cleared/all_waves_complete. | ADR-0010 | COUVERT | — |
+| TR-vagues-ennemis-004 | design/gdd/vagues-ennemis.md | vagues-ennemis | Spawn uniquement sur game_state_changed(COMBAT). | ADR-0010, ADR-0011 | COUVERT | — |
+| TR-gestionnaire-etat-001 | design/gdd/gestionnaire-etat.md | gestionnaire-etat | S11 est l'autorite d'etat ; emet game_state_changed. | ADR-0011 | COUVERT | — |
+| TR-gestionnaire-etat-002 | design/gdd/gestionnaire-etat.md | gestionnaire-etat | Transitions FSM pilotees par signaux S03/S07. | ADR-0011 | COUVERT | — |
+| TR-gestionnaire-etat-003 | design/gdd/gestionnaire-etat.md | gestionnaire-etat | GAME_OVER declenche S10.freeze + retry en <=3s via S12. | ADR-0011, ADR-0012 | COUVERT | — |
+| TR-gestionnaire-etat-004 | design/gdd/gestionnaire-etat.md | gestionnaire-etat | S11 ne contient pas de logique gameplay. | ADR-0011 | COUVERT | — |
+| TR-retry-reinitialisation-001 | design/gdd/retry-reinitialisation.md | retry-reinitialisation | S12 retry() appelle reload_current_scene(). | ADR-0012 | COUVERT | — |
+| TR-retry-reinitialisation-002 | design/gdd/retry-reinitialisation.md | retry-reinitialisation | Declenche uniquement par S11 en GAME_OVER. | ADR-0011, ADR-0012 | COUVERT | — |
+| TR-retry-reinitialisation-003 | design/gdd/retry-reinitialisation.md | retry-reinitialisation | Temps total retry <= 3s ; pas de fade en MVP. | ADR-0012 | COUVERT | — |
+| TR-hud-001 | design/gdd/hud.md | hud | HUD = CanvasLayer, read-only (minimal outbound). | ADR-0013 | COUVERT | — |
+| TR-hud-002 | design/gdd/hud.md | hud | Consomme signaux S07/S03/GrabSystem pour HP/vagues/silhouette. | ADR-0013 | COUVERT | — |
+| TR-hud-003 | design/gdd/hud.md | hud | HP bar : update immediat + regles hit flash 440ms. | ADR-0013 | COUVERT | — |
+| TR-hud-004 | design/gdd/hud.md | hud | Emet retry_requested() uniquement en GAME_OVER vers S11. | ADR-0013 | COUVERT | — |
 
 ---
 
-## Cross-ADR Conflicts
+## Trous connus
+ 
+Aucun — tous les TR-ID actifs sont couverts par des ADR `Accepted`.
 
-| Conflict ID | ADR A | ADR B | Type | Status |
+---
+
+## Conflits inter-ADR
+
+| Conflict ID | ADR A | ADR B | Type | Statut |
 |-------------|-------|-------|------|--------|
-| CONFLICT-001 | ADR-0001 | ADR-0002 | Dependency ordering | 🔴 Unresolved |
+| CONFLICT-001 | ADR-0001 | ADR-0002 | Ordre de dependances | RESOLU |
 
 ---
 
-## ADR → GDD Coverage (Reverse Index)
+## ADR -> GDD (index inverse)
 
-| ADR | Title | GDD Requirements Addressed | Engine Risk |
-|-----|-------|---------------------------|-------------|
-| ADR-0001 | GrabSystem Architecture | TR-saisie-lancer-001, TR-saisie-lancer-002, TR-saisie-lancer-003, TR-saisie-lancer-004 | HIGH |
-| ADR-0002 | Player Body Type and Collision Layers | TR-deplacement-joueur-001, TR-deplacement-joueur-002 | HIGH |
-| ADR-0003 | DamageCalculator — Patron static func | TR-systeme-degats-001, TR-systeme-degats-002, TR-systeme-degats-003, TR-systeme-degats-004 | HIGH |
-
+| ADR | Titre | Exigences GDD couvertes | Risque moteur |
+|-----|-------|--------------------------|--------------|
+| ADR-0001 | GrabSystem Architecture | TR-saisie-lancer-001, TR-saisie-lancer-002, TR-saisie-lancer-003, TR-saisie-lancer-004 | ELEVÉ |
+| ADR-0002 | Player Body Type and Collision Layers | TR-deplacement-joueur-001, TR-deplacement-joueur-002 | ELEVÉ |
+| ADR-0003 | DamageCalculator - Patron static func | TR-systeme-degats-001, TR-systeme-degats-002, TR-systeme-degats-003, TR-systeme-degats-004 | ELEVÉ |
+| ADR-0004 | Catalogue d'objets (S05) - Modele Resource + @export | TR-catalogue-objets-001, TR-catalogue-objets-002, TR-catalogue-objets-003, TR-catalogue-objets-004 | ELEVÉ |
+| ADR-0005 | Conventions DI + signaux (GDScript) | Fondation (pas de TR direct) | ELEVÉ |
+| ADR-0006 | S01 Jump + Gravity (coyote time, ordre d'application) | TR-deplacement-joueur-003, TR-deplacement-joueur-004 | ELEVÉ |
+| ADR-0007 | S10 Camera TPS (pivot + SpringArm + yaw signal + freeze) | TR-camera-tps-001, TR-camera-tps-002, TR-camera-tps-003, TR-camera-tps-004 | ELEVÉ |
+| ADR-0008 | S07/S08 Health contracts (receive_damage + signaux) | TR-sante-joueur-001, TR-sante-joueur-002, TR-sante-joueur-003, TR-sante-ennemie-001, TR-sante-ennemie-002, TR-sante-ennemie-003 | ELEVÉ |
+| ADR-0009 | S09 Enemy scene contract (composition + DI + signaux) | TR-ia-ennemie-001, TR-ia-ennemie-002, TR-ia-ennemie-003, TR-ia-ennemie-004 | ELEVÉ |
+| ADR-0010 | S03 WaveManager (spawn + contracts enemy_died + signaux S11) | TR-vagues-ennemis-001, TR-vagues-ennemis-002, TR-vagues-ennemis-003, TR-vagues-ennemis-004, TR-systems-index-001 | ELEVÉ |
+| ADR-0011 | S11 GameState FSM (autorité + orchestration freeze/retry) | TR-gestionnaire-etat-001, TR-gestionnaire-etat-002, TR-gestionnaire-etat-003, TR-gestionnaire-etat-004, TR-systems-index-001 | ELEVÉ |
+| ADR-0012 | S12 Retry (SceneTree.reload_current_scene) | TR-retry-reinitialisation-001, TR-retry-reinitialisation-002, TR-retry-reinitialisation-003 | ELEVÉ |
+| ADR-0013 | S13 HUD (CanvasLayer read-only + retry_requested) | TR-hud-001, TR-hud-002, TR-hud-003, TR-hud-004 | ELEVÉ |
+| ADR-0014 | Concept constraints (single room sessions, no persistence) | TR-concept-001, TR-concept-002 | FAIBLE |

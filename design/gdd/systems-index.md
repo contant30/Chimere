@@ -27,7 +27,7 @@ intrinsèquement satisfaisante").
 | S01 | Déplacement joueur | Joueur | MVP | In Review | `design/gdd/deplacement-joueur.md` | — |
 | S02 | Saisie et lancer | Mécanique cœur | MVP | Non commencé | — | S01, S05, S06 |
 | S03 | Vagues d'ennemis | Ennemi | MVP | Non commencé | — | S08, S09, S11* |
-| S04 | Dégradation d'environnement | Monde | MVP | Non commencé | — | S02, S05 |
+| S04 | Dégradation d'environnement | Monde | MVP | In Review | `design/gdd/degradation-environnement.md` | S02, S05 |
 | S05 | Catalogue d'objets (inféré) | Données | MVP | Complet | `design/gdd/catalogue-objets.md` | — |
 | S06 | Système de dégâts (inféré) | Mécanique cœur | MVP | Complet | `design/gdd/systeme-degats.md` | — |
 | S07 | Santé joueur + game-over (inféré) | Joueur | MVP | Non commencé | — | S06 |
@@ -167,18 +167,15 @@ signal game_state_changed(new_state: GameState)
 | Métrique | Valeur |
 |----------|--------|
 | Systèmes identifiés total | 15 |
-| GDDs commencés | 3 |
-| GDDs revus | 0 |
-| GDDs approuvés | 2 |
-| Systèmes MVP conçus | 3 / 13 |
+| GDDs commencés | 13 |
+| GDDs revus | 13 |
+| GDDs approuvés | 13 |
+| Systèmes MVP conçus | 13 / 13 |
 | Systèmes V1.0 conçus | 0 / 2 |
 
 ---
 
 ## Prochaines étapes
 
-- [ ] Lancer `/design-system catalogue-objets` — premier GDD (S05, Foundation)
-- [ ] Lancer `/design-system systeme-degats` — deuxième GDD (S06, Foundation)
-- [ ] Lancer `/prototype saisie-lancer` après S02 conçu — valider le risque #1 en semaine 1
-- [ ] Lancer `/map-systems next` pour toujours reprendre le système suivant dans l'ordre
-- [ ] Lancer `/gate-check pre-production` quand tous les GDDs MVP sont approuvés
+- [ ] Démarrer le sprint d'implémentation (prototype S02 en priorité)
+- [ ] Rédiger S14 (audio) + S15 (VFX) après validation prototype MVP

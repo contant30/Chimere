@@ -1,8 +1,8 @@
 # S01 — Déplacement joueur
 
-> **Statut**: In Design
+> **Statut**: Approuvé
 > **Auteur**: ROM.CONTANT + agents
-> **Dernière mise à jour**: 2026-04-08
+> **Dernière mise à jour**: 2026-04-10
 > **Implémente le Pilier**: Pilier 2 — Le flow avant le challenge
 
 ## Overview

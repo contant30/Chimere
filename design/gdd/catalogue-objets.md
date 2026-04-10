@@ -1,8 +1,8 @@
 # Catalogue d'objets
 
-> **Statut** : Complet — en attente de revue
+> **Statut** : Approuvé
 > **Auteur** : Game Designer + Systems Designer
-> **Dernière mise à jour** : 2026-04-07
+> **Dernière mise à jour** : 2026-04-10
 > **Implémente le pilier** : Pilier 1 — Tout est une arme
 
 ## Résumé

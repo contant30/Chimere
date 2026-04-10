@@ -1,7 +1,7 @@
 # Game Concept: Saisir
 
 *Créé : 2026-04-07*
-*Statut : Brouillon*
+*Statut : Approuvé*
 
 ---
 

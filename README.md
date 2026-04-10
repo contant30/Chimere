@@ -125,7 +125,7 @@ Résumé manuel pour lecture rapide. **Source de vérité pour l’avancement ti
 | S01 | Déplacement joueur | 🔍 In Review |
 | S02 | Saisie et lancer | ⬜ |
 | S03 | Vagues d'ennemis | ⬜ |
-| S04 | Dégradation environnement | ⬜ |
+| S04 | Dégradation environnement | 🔍 In Review |
 | S05 | Catalogue objets | ✅ |
 | S06 | Dégâts | ✅ |
 | S07 | Santé joueur | ⬜ |

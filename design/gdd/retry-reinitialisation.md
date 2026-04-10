@@ -1,13 +1,13 @@
 # S12 — Retry / réinitialisation
 
-> **Statut**: In Review
+> **Statut**: Approuvé
 > **Auteur**: ROM.CONTANT + agents
 > **Dernière mise à jour**: 2026-04-10
 > **Implémente le Pilier**: Pilier 2 — Le flow avant le challenge
 
 ## Overview
 
-S12 — Retry / réinitialisation est le mécanisme qui ramène le joueur à l'état initial après un GAME_OVER. Son rôle est unique et minimal : déclenché par S11 après `RETRY_DELAY`, il appelle `SceneTree.reload_current_scene()`, ce qui détruit et recrée l'intégralité de la scène de jeu — joueur, ennemis, objets, caméra, gestionnaire de vagues — dans un état vierge garanti. S12 ne gère pas de transitions visuelles (hors scope MVP), ne maintient aucun état persistant entre les tentatives, et n'a aucune logique de gameplay propre. Pour le joueur, S12 est la promesse tenue par Pilier 2 : après GAME_OVER, la partie reprend en moins de 3 secondes, sans friction, sans menu intermédiaire, comme si le mouvement n'avait jamais été interrompu.
+S12 — Retry / réinitialisation est le mécanisme qui ramène le joueur à l'état initial après un GAME_OVER. Son rôle est unique et minimal : déclenché par S11 (auto après `RETRY_DELAY`, ou immédiatement si S11 reçoit `retry_requested()` du HUD), il appelle `SceneTree.reload_current_scene()`, ce qui détruit et recrée l'intégralité de la scène de jeu — joueur, ennemis, objets, caméra, gestionnaire de vagues — dans un état vierge garanti. S12 ne gère pas de transitions visuelles (hors scope MVP), ne maintient aucun état persistant entre les tentatives, et n'a aucune logique de gameplay propre. Pour le joueur, S12 est la promesse tenue par Pilier 2 : après GAME_OVER, la partie reprend en moins de 3 secondes, sans friction, sans menu intermédiaire, comme si le mouvement n'avait jamais été interrompu.
 
 ## Player Fantasy
 
@@ -21,7 +21,7 @@ La mort n'est pas une fin de partie — c'est l'expiration d'une phrase. Le joue
 
 1. **Responsabilité unique** : S12 expose une seule méthode publique, `retry()`. Quand appelée, elle déclenche `get_tree().reload_current_scene()`. C'est la totalité de la logique de S12.
 
-2. **Déclenchement exclusif par S11** : S12 ne s'autodéclenche jamais. Seul S11 appelle `retry()`, après `RETRY_DELAY` (2 s), depuis l'état GAME_OVER.
+2. **Déclenchement exclusif par S11** : S12 ne s'autodéclenche jamais. Seul S11 appelle `retry()` depuis l'état GAME_OVER : soit automatiquement après `RETRY_DELAY` (2 s), soit immédiatement si S11 reçoit `retry_requested()` de S13.
 
 3. **Reset garanti par le moteur** : `reload_current_scene()` détruit et recrée l'intégralité de la scène active (joueur, ennemis, objets, caméra, S03, S07, S08, S09, S10, S11, S13). Aucun système n'a besoin d'implémenter une méthode `reset()` — le moteur garantit un état vierge.
 
@@ -44,7 +44,7 @@ S12 est sans état observable. Du point de vue du joueur et des autres systèmes
 
 | Système | Direction | Interface |
 |---------|-----------|-----------|
-| S11 — Gestionnaire d'état | S11 → S12 | Appel direct `retry()` après `RETRY_DELAY` |
+| S11 — Gestionnaire d'état | S11 → S12 | Appel direct `retry()` (auto après `RETRY_DELAY`, ou immédiat si `retry_requested()` reçu par S11) |
 | Tous les autres systèmes | S12 → tous | Implicite — `reload_current_scene()` recrée tous les nodes. Aucun appel direct. |
 
 ## Formulas
@@ -135,8 +135,8 @@ S12 n'expose aucun tuning knob propre. Si `scene_reload_time` dépasse le budget
 
 ## Open Questions
 
-**OQ-01 — Interface S11→S12 : `@export` ou signal ?**
-Actuellement spécifié comme appel direct de méthode (`retry()`) via `@export` de S12 dans S11. Alternative : S11 émet un signal `retry_requested` que S12 écoute — découplage plus propre mais moins lisible pour un MVP mono-scène. À décider au prototype S11/S12.
+**OQ-01 — (Résolu) Interface S11→S12**
+Appel direct de méthode (`S12.retry()`) via une référence `@export` dans S11, vérifiée en `_ready()` (MVP).
 
 **OQ-02 — scene_reload_time sous Godot 4.6.2 + Jolt**
 Le temps réel de `reload_current_scene()` avec Jolt Physics initialisé n'est pas connu avant mesure. Si ≥ 1 s, la contrainte Pilier 2 est à risque. À mesurer en priorité au premier prototype jouable.
