@@ -1,43 +1,147 @@
-[gd_scene load_steps=5 format=3 uid="uid://dwxvj62gy7s1k"]
+[gd_scene load_steps=17 format=3 uid="uid://dwxvj62gy7s1k"]
 
-[sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_floor_test"]
+[ext_resource type="PackedScene" path="res://scenes/player/Player.tscn" id="1"]
+[ext_resource type="PackedScene" path="res://scenes/objects/ChairProxy.tscn" id="2"]
+[ext_resource type="PackedScene" path="res://scenes/objects/BottleProxy.tscn" id="3"]
+[ext_resource type="PackedScene" path="res://scenes/objects/MonitorHeavyProxy.tscn" id="4"]
+[ext_resource type="PackedScene" path="res://scenes/enemies/PrototypeDummy.tscn" id="5"]
+[ext_resource type="PackedScene" path="res://scenes/ui/PrototypeHud.tscn" id="6"]
+[ext_resource type="PackedScene" path="res://scenes/objects/DeskLampProxy.tscn" id="7"]
+[ext_resource type="PackedScene" path="res://scenes/objects/BookProxy.tscn" id="8"]
+[ext_resource type="PackedScene" path="res://scenes/objects/LaptopProxy.tscn" id="9"]
+[ext_resource type="PackedScene" path="res://scenes/objects/CoffeeMugProxy.tscn" id="10"]
+
+[sub_resource type="ProceduralSkyMaterial" id="1"]
 sky_top_color = Color(0.35, 0.55, 0.85, 1)
 sky_horizon_color = Color(0.65, 0.72, 0.82, 1)
 ground_bottom_color = Color(0.12, 0.11, 0.1, 1)
 ground_horizon_color = Color(0.35, 0.33, 0.3, 1)
 
-[sub_resource type="Sky" id="Sky_floor_test"]
-sky_material = SubResource("ProceduralSkyMaterial_floor_test")
+[sub_resource type="Sky" id="2"]
+sky_material = SubResource("1")
 
-[sub_resource type="Environment" id="Environment_floor_test"]
+[sub_resource type="Environment" id="3"]
 background_mode = 2
-sky = SubResource("Sky_floor_test")
+sky = SubResource("2")
 ambient_light_source = 2
 ambient_light_energy = 0.4
 
-[sub_resource type="PlaneMesh" id="PlaneMesh_floor_test"]
+[sub_resource type="PlaneMesh" id="4"]
 size = Vector2(20, 20)
 
-[sub_resource type="BoxShape3D" id="BoxShape3D_floor_test"]
+[sub_resource type="BoxShape3D" id="5"]
 size = Vector3(20, 0.2, 20)
+
+[sub_resource type="StandardMaterial3D" id="6"]
+albedo_color = Color(0.209, 0.219, 0.191, 1)
+roughness = 0.95
+uv1_scale = Vector3(6, 6, 6)
+
+[sub_resource type="BoxShape3D" id="7"]
+size = Vector3(20, 3, 0.4)
+
+[sub_resource type="BoxShape3D" id="8"]
+size = Vector3(0.4, 3, 20)
+
+[sub_resource type="BoxMesh" id="9"]
+size = Vector3(0.8, 1.8, 0.8)
+
+[sub_resource type="StandardMaterial3D" id="10"]
+albedo_color = Color(0.444, 0.43, 0.391, 1)
+roughness = 0.9
 
 [node name="TestScene" type="Node3D"]
 
 [node name="WorldEnvironment" type="WorldEnvironment" parent="."]
-environment = SubResource("Environment_floor_test")
+environment = SubResource("3")
 
 [node name="DirectionalLight3D" type="DirectionalLight3D" parent="."]
 transform = Transform3D(0.866025, -0.353553, 0.353553, 0, 0.707107, 0.707107, -0.5, -0.612372, 0.612372, 6, 10, 6)
 shadow_enabled = true
 
-[node name="Camera3D" type="Camera3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 0.939693, 0.34202, 0, -0.34202, 0.939693, 0, 2.8, 8.5)
-current = true
-
 [node name="Floor" type="StaticBody3D" parent="."]
+collision_layer = 1
 
 [node name="MeshInstance3D" type="MeshInstance3D" parent="Floor"]
-mesh = SubResource("PlaneMesh_floor_test")
+mesh = SubResource("4")
+material_override = SubResource("6")
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="Floor"]
-shape = SubResource("BoxShape3D_floor_test")
+shape = SubResource("5")
+
+[node name="NorthWall" type="StaticBody3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.5, -10)
+collision_layer = 1
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="NorthWall"]
+mesh = SubResource("9")
+scale = Vector3(25, 1.66667, 0.5)
+material_override = SubResource("10")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="NorthWall"]
+shape = SubResource("7")
+
+[node name="SouthWall" type="StaticBody3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.5, 10)
+collision_layer = 1
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="SouthWall"]
+mesh = SubResource("9")
+scale = Vector3(25, 1.66667, 0.5)
+material_override = SubResource("10")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="SouthWall"]
+shape = SubResource("7")
+
+[node name="EastWall" type="StaticBody3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 10, 1.5, 0)
+collision_layer = 1
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="EastWall"]
+mesh = SubResource("9")
+scale = Vector3(0.5, 1.66667, 25)
+material_override = SubResource("10")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="EastWall"]
+shape = SubResource("8")
+
+[node name="WestWall" type="StaticBody3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -10, 1.5, 0)
+collision_layer = 1
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="WestWall"]
+mesh = SubResource("9")
+scale = Vector3(0.5, 1.66667, 25)
+material_override = SubResource("10")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="WestWall"]
+shape = SubResource("8")
+
+[node name="Player" parent="." instance=ExtResource("1")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.1, 4)
+
+[node name="ChaiseProxy" parent="." instance=ExtResource("2")]
+transform = Transform3D(0.959211, 0, -0.282693, 0, 1, 0, 0.282693, 0, 0.959211, -1.1, 0.6, 2.2)
+
+[node name="BouteilleProxy" parent="." instance=ExtResource("3")]
+transform = Transform3D(0.907673, 0, 0.419677, 0, 1, 0, -0.419677, 0, 0.907673, 1.2, 0.5, 2.5)
+
+[node name="MoniteurProxy" parent="." instance=ExtResource("4")]
+transform = Transform3D(0.995004, 0, -0.0998334, 0, 1, 0, 0.0998334, 0, 0.995004, 2.7, 0.6, 1.8)
+
+[node name="DeskLampProxy" parent="." instance=ExtResource("7")]
+transform = Transform3D(0.996195, 0, -0.0871557, 0, 1, 0, 0.0871557, 0, 0.996195, -3.1, 0.65, 0.9)
+
+[node name="BookProxy" parent="." instance=ExtResource("8")]
+transform = Transform3D(0.965926, 0, 0.258819, 0, 1, 0, -0.258819, 0, 0.965926, -2.2, 0.18, 3.3)
+
+[node name="LaptopProxy" parent="." instance=ExtResource("9")]
+transform = Transform3D(0.939693, 0, -0.34202, 0, 1, 0, 0.34202, 0, 0.939693, 2.9, 0.22, 3.1)
+
+[node name="CoffeeMugProxy" parent="." instance=ExtResource("10")]
+transform = Transform3D(0.984808, 0, 0.173648, 0, 1, 0, -0.173648, 0, 0.984808, 0.2, 0.16, 1.4)
+
+[node name="TargetDummy" parent="." instance=ExtResource("5")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.9, -5.5)
+
+[node name="PrototypeHud" parent="." instance=ExtResource("6")]

@@ -1,0 +1,35 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://src/ui/prototype_debug_ui.gd" id="1"]
+
+[node name="PrototypeHud" type="CanvasLayer"]
+script = ExtResource("1")
+player_path = NodePath("../Player")
+grab_system_path = NodePath("../Player/GrabSystem")
+
+[node name="StatusLabel" type="Label" parent="."]
+offset_left = 20.0
+offset_top = 20.0
+offset_right = 640.0
+offset_bottom = 76.0
+theme_override_colors/font_color = Color(0.94, 0.94, 0.9, 0.92)
+theme_override_font_sizes/font_size = 18
+text = "Etat"
+
+[node name="Reticle" type="Label" parent="."]
+offset_left = 953.0
+offset_top = 520.0
+offset_right = 990.0
+offset_bottom = 560.0
+theme_override_colors/font_color = Color(1, 0.98, 0.9, 1)
+theme_override_font_sizes/font_size = 30
+text = "+"
+
+[node name="HintLabel" type="Label" parent="."]
+offset_left = 20.0
+offset_top = 1010.0
+offset_right = 980.0
+offset_bottom = 1060.0
+theme_override_colors/font_color = Color(0.88, 0.88, 0.84, 0.82)
+theme_override_font_sizes/font_size = 18
+text = "ZQSD deplacement  |  E saisir  |  A melee  |  R lancer  |  F deposer  |  T reset dummy"

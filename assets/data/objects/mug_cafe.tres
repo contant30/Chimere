@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="ObjectCatalogEntry" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://src/gameplay/objects/object_catalog_entry.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+display_name = "mug_cafe"
+mass_kg = 0.3
+grab_range_m = 6.0
+melee_damage_base = 1
+throw_damage_base = 3
+throw_impulse_scale = 1.8
+melee_dmg_mult = 1.0
+throw_dmg_mult = 1.0

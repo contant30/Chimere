@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="ObjectCatalogEntry" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://src/gameplay/objects/object_catalog_entry.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+display_name = "chaise"
+mass_kg = 6.0
+grab_range_m = 6.0
+melee_damage_base = 7
+throw_damage_base = 10
+throw_impulse_scale = 0.45
+melee_dmg_mult = 1.0
+throw_dmg_mult = 1.0
